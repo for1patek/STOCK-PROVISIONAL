@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Órbita · Stock Provisional</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0c0c0c;
+  --s1:       #161616;
+  --s2:       #1e1e1e;
+  --s3:       #262626;
+  --border:   #2c2c2c;
+  --border2:  #383838;
+  --text:     #ece8e1;
+  --muted:    #7a7570;
+  --muted2:   #4a4642;
+  --cafe:     #d4a96a;
+  --cafe-bg:  #1f1508;
+  --fuente:   #6ab4d4;
+  --fuente-bg:#081520;
+  --shared:   #9d8fd4;
+  --shared-bg:#100e1f;
+  --ok:       #6fcf97;
+  --warn:     #e8a84a;
+  --fire:     #e86040;
+  --r: 10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;}
+
+/* ── HEADER ── */
+header{
+  position:sticky;top:0;z-index:200;
+  background:rgba(12,12,12,0.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 24px;gap:12px;
+}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.1em;white-space:nowrap;}
+.logo em{color:var(--cafe);font-style:normal;}
+.logo small{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:.12em;margin-left:8px;vertical-align:middle;}
+.header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:6px 14px;border-radius:20px;border:1px solid var(--border2);
+  background:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:500;
+  cursor:pointer;transition:all .15s;letter-spacing:.02em;white-space:nowrap;
+}
+.btn:hover{color:var(--text);border-color:var(--muted);}
+.btn.primary{background:var(--text);color:var(--bg);border-color:var(--text);}
+.btn.primary:hover{background:#fff;}
+.btn.danger{color:var(--fire);border-color:var(--fire);}
+.btn.danger:hover{background:var(--fire);color:#fff;}
+
+/* ── TABS VISTA ── */
+.tabs-vista{
+  display:flex;gap:0;
+  border-bottom:1px solid var(--border);
+  background:var(--s1);
+  padding:0 24px;
+}
+.tab-v{
+  padding:12px 20px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;
+  cursor:pointer;border-bottom:3px solid transparent;color:var(--muted);transition:all .2s;
+}
+.tab-v:hover{color:var(--text);}
+.tab-v.active{color:var(--text);border-bottom-color:var(--text);}
+
+/* ── ALERTA DÍAS SIN REGISTRAR ── */
+.alerta-gaps{
+  margin:16px 24px 0;padding:10px 16px;border-radius:var(--r);
+  background:rgba(232,168,74,.08);border:1px solid rgba(232,168,74,.25);
+  color:var(--warn);font-size:.8rem;display:flex;align-items:center;gap:8px;
+}
+.alerta-gaps.hidden{display:none;}
+
+/* ── MAIN ── */
+main{padding:16px 24px 80px;max-width:1080px;margin:0 auto;}
+
+/* ── FECHA NAV ── */
+.fecha-bar{
+  display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;
+}
+.btn-nav{
+  width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);
+  background:none;color:var(--muted);cursor:pointer;font-size:1.1rem;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.btn-nav:hover{color:var(--text);border-color:var(--muted);}
+.fecha-label{
+  font-family:'DM Mono',monospace;font-size:.85rem;color:var(--text);
+  min-width:160px;text-align:center;
+}
+.btn-hoy{
+  padding:4px 12px;border-radius:12px;border:1px solid var(--border2);
+  background:none;color:var(--muted);font-size:.72rem;cursor:pointer;transition:all .15s;
+}
+.btn-hoy:hover{color:var(--text);}
+.periodo-label{
+  font-family:'DM Mono',monospace;font-size:.82rem;color:var(--text);
+  min-width:200px;text-align:center;
+}
+
+/* ── SECCIÓN LOCAL ── */
+.seccion{margin-bottom:28px;}
+.sec-header{
+  display:flex;align-items:center;gap:10px;margin-bottom:10px;
+  padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+.sec-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.sec-dot.cafe{background:var(--cafe);}
+.sec-dot.fuente{background:var(--fuente);}
+.sec-dot.shared{background:var(--shared);}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.1em;}
+.sec-title.cafe{color:var(--cafe);}
+.sec-title.fuente{color:var(--fuente);}
+.sec-title.shared{color:var(--shared);}
+.sec-subtotal{
+  margin-left:auto;font-family:'DM Mono',monospace;font-size:.82rem;color:var(--muted);
+}
+.sec-subtotal span{color:var(--text);}
+
+/* ── CATEGORÍA ── */
+.cat-label{
+  font-size:.62rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--muted2);margin-bottom:6px;padding-left:2px;
+}
+
+/* ── TABLA PRODUCTOS ── */
+.tabla{width:100%;border-collapse:collapse;margin-bottom:14px;}
+.tabla th{
+  text-align:left;padding:7px 12px;font-size:.62rem;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);
+  background:var(--s2);border-bottom:1px solid var(--border);
+}
+.tabla th.r{text-align:right;}
+.tabla th.c{text-align:center;}
+.tabla td{padding:0;border-bottom:1px solid var(--border);}
+.tabla tr:last-child td{border-bottom:none;}
+.tabla tr{background:var(--s1);}
+.tabla tr:hover{background:var(--s2);}
+.tabla tr.inactivo{opacity:.4;}
+
+/* celdas editables */
+.inp-nombre,.inp-precio{
+  width:100%;background:none;border:none;outline:none;
+  font-family:'DM Sans',sans-serif;color:var(--text);padding:10px 12px;
+}
+.inp-nombre{font-size:.88rem;}
+.inp-precio{
+  font-family:'DM Mono',monospace;font-size:.8rem;color:var(--muted);
+  text-align:right;
+}
+.inp-nombre:focus,.inp-precio:focus{background:rgba(255,255,255,.03);}
+
+/* qty control */
+.qty-wrap{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 8px;}
+.qbtn{
+  width:26px;height:26px;border-radius:6px;border:1px solid var(--border2);
+  background:none;color:var(--muted);cursor:pointer;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;transition:all .12s;line-height:1;
+}
+.qbtn.plus:hover{background:var(--ok);color:var(--bg);border-color:var(--ok);}
+.qbtn.minus:hover{background:var(--fire);color:#fff;border-color:var(--fire);}
+.qty-n{
+  font-family:'DM Mono',monospace;font-size:.9rem;font-weight:500;
+  min-width:28px;text-align:center;color:var(--muted2);
+}
+.qty-n.has{color:var(--ok);}
+
+/* subtotal celda */
+.td-sub{text-align:right;padding:10px 12px;font-family:'DM Mono',monospace;font-size:.8rem;color:var(--muted2);}
+.td-sub.has{color:var(--text);}
+
+/* toggle activo */
+.td-tog{text-align:center;padding:8px;}
+.toggle{
+  width:32px;height:18px;border-radius:9px;border:none;cursor:pointer;
+  position:relative;transition:background .2s;flex-shrink:0;
+}
+.toggle.on{background:var(--ok);}
+.toggle.off{background:var(--border2);}
+.toggle::after{
+  content:'';position:absolute;top:2px;width:14px;height:14px;border-radius:50%;background:#fff;
+  transition:left .2s;
+}
+.toggle.on::after{left:16px;}
+.toggle.off::after{left:2px;}
+
+/* ── CAJA DEL DÍA ── */
+.caja-dia{
+  margin-top:20px;padding:16px 20px;border-radius:var(--r);
+  background:var(--s2);border:1px solid var(--border2);
+}
+.caja-grid{display:flex;gap:0;flex-wrap:wrap;}
+.caja-item{
+  flex:1;min-width:120px;padding:10px 16px;
+  border-right:1px solid var(--border);
+}
+.caja-item:last-child{border-right:none;}
+.caja-item-label{font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);margin-bottom:4px;}
+.caja-item-val{font-family:'DM Mono',monospace;font-size:1.05rem;font-weight:500;color:var(--text);}
+.caja-item-val.cafe{color:var(--cafe);}
+.caja-item-val.fuente{color:var(--fuente);}
+.caja-item-val.shared{color:var(--shared);}
+.caja-item-val.total{color:var(--ok);font-size:1.2rem;}
+.caja-footer{
+  margin-top:12px;padding-top:12px;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.notas-input{
+  flex:1;min-width:200px;background:var(--s3);border:1px solid var(--border);
+  border-radius:6px;padding:8px 12px;color:var(--text);font-family:'DM Sans',sans-serif;
+  font-size:.82rem;outline:none;resize:none;height:36px;
+}
+.notas-input::placeholder{color:var(--muted2);}
+.notas-input:focus{border-color:var(--border2);}
+.btn-guardar{
+  padding:8px 22px;border-radius:8px;border:none;
+  background:var(--text);color:var(--bg);font-family:'DM Sans',sans-serif;
+  font-weight:600;font-size:.82rem;cursor:pointer;transition:all .15s;
+}
+.btn-guardar:hover{background:#fff;}
+.btn-guardar.ok{background:var(--ok);}
+
+/* ── RESUMEN SEMANAL / MENSUAL ── */
+.resumen-wrap{margin-top:16px;overflow-x:auto;}
+.tabla-res{
+  width:100%;border-collapse:collapse;
+  background:var(--s1);border-radius:var(--r);overflow:hidden;
+  border:1px solid var(--border);min-width:500px;
+}
+.tabla-res th{
+  text-align:right;padding:8px 12px;font-size:.62rem;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);
+  background:var(--s2);border-bottom:1px solid var(--border);white-space:nowrap;
+}
+.tabla-res th:first-child{text-align:left;min-width:150px;}
+.tabla-res td{
+  padding:8px 12px;border-bottom:1px solid var(--border);
+  font-family:'DM Mono',monospace;font-size:.78rem;color:var(--muted2);text-align:right;
+}
+.tabla-res td:first-child{
+  font-family:'DM Sans',sans-serif;font-size:.84rem;color:var(--text);text-align:left;
+}
+.tabla-res tr:last-child td{border-bottom:none;}
+.tabla-res tr:hover{background:var(--s2);}
+.tabla-res .cat-row td{
+  background:var(--s2);color:var(--muted2);font-size:.6rem;
+  letter-spacing:.12em;text-transform:uppercase;font-family:'DM Sans',sans-serif;
+  border-top:1px solid var(--border);padding:5px 12px;
+}
+.tabla-res .total-row td{
+  background:var(--s3);border-top:2px solid var(--border2);font-weight:500;
+}
+.tabla-res .total-row td:first-child{
+  font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.08em;color:var(--muted);
+}
+.tabla-res td.hi{color:var(--text);}
+.tabla-res td.hoy-col{color:var(--cafe);}
+.notas-cell{font-family:'DM Sans',sans-serif !important;font-size:.75rem !important;color:var(--muted) !important;font-style:italic;}
+
+/* ── GESTIÓN CATÁLOGO ── */
+.cat-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.cat-header .cat-label{margin-bottom:0;flex:1;}
+.btn-cat{
+  padding:2px 8px;border-radius:10px;border:1px solid var(--border2);
+  background:none;color:var(--muted2);font-size:.65rem;cursor:pointer;transition:all .12s;white-space:nowrap;
+}
+.btn-cat:hover{color:var(--text);border-color:var(--muted);}
+.btn-eliminar{
+  width:28px;height:28px;border-radius:6px;border:1px solid transparent;
+  background:none;color:var(--muted2);cursor:pointer;font-size:.85rem;
+  display:flex;align-items:center;justify-content:center;transition:all .12s;flex-shrink:0;padding:0;
+}
+.btn-eliminar:hover{color:var(--fire);border-color:var(--fire);background:rgba(232,96,64,.08);}
+.btn-add-prod{
+  width:100%;padding:7px;border:none;border-top:1px dashed var(--border);background:none;
+  color:var(--muted2);font-size:.72rem;cursor:pointer;transition:all .12s;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.btn-add-prod:hover{color:var(--ok);}
+.btn-add-cat{
+  width:100%;padding:7px;border-radius:8px;border:1px dashed var(--border2);
+  background:none;color:var(--muted2);font-size:.72rem;cursor:pointer;transition:all .12s;
+  display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:14px;
+}
+.btn-add-cat:hover{color:var(--text);border-color:var(--muted);}
+.modal-cat{
+  background:var(--s1);border:1px solid var(--border2);border-radius:var(--r);
+  padding:24px;width:100%;max-width:400px;
+}
+.modal-cat h2{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.08em;margin-bottom:16px;}
+.field-group{margin-bottom:14px;}
+.field-label{font-size:.65rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.field-input{
+  width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:6px;
+  padding:9px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;
+}
+.field-input:focus{border-color:var(--muted);}
+.field-row{display:flex;gap:10px;}
+.field-row .field-group{flex:1;}
+.modal-cat-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+
+/* ── MODAL EXPORT / IMPORT ── */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.overlay.hidden{display:none;}
+.modal{
+  background:var(--s1);border:1px solid var(--border2);border-radius:var(--r);
+  padding:24px;width:100%;max-width:480px;
+}
+.modal h2{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.08em;margin-bottom:16px;}
+.modal-section{margin-bottom:16px;}
+.modal-label{font-size:.72rem;color:var(--muted);margin-bottom:8px;letter-spacing:.06em;}
+.modal-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.modal-sep{height:1px;background:var(--border);margin:16px 0;}
+.file-drop{
+  border:2px dashed var(--border2);border-radius:8px;padding:24px;
+  text-align:center;color:var(--muted);font-size:.82rem;cursor:pointer;
+  transition:border-color .15s;
+}
+.file-drop:hover{border-color:var(--muted);}
+#file-input{display:none;}
+.modal-footer{display:flex;justify-content:flex-end;margin-top:16px;}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:24px;right:24px;z-index:500;
+  padding:10px 18px;border-radius:8px;font-weight:600;font-size:.8rem;
+  opacity:0;transform:translateY(8px);transition:all .22s;pointer-events:none;
+}
+#toast.show{opacity:1;transform:translateY(0);}
+#toast.ok{background:var(--ok);color:var(--bg);}
+#toast.warn{background:var(--warn);color:var(--bg);}
+#toast.err{background:var(--fire);color:#fff;}
+
+@media(max-width:600px){
+  header{padding:12px 14px;}
+  main{padding:12px 14px 80px;}
+  .tabs-vista{padding:0 14px;}
+  .alerta-gaps{margin:12px 14px 0;}
+  .tabla th:nth-child(2),.tabla td:nth-child(2){display:none;}
+  .caja-item{min-width:100px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ÓRBIT<em>A</em><small>STOCK PROVISIONAL</small></div>
+  <div class="header-actions">
+    <button class="btn" onclick="abrirModal()">⬆ Export / Import</button>
+  </div>
+</header>
+
+<div class="tabs-vista">
+  <div class="tab-v active" onclick="setVista('diario')" id="tv-diario">Diario</div>
+  <div class="tab-v" onclick="setVista('semanal')" id="tv-semanal">Semanal</div>
+  <div class="tab-v" onclick="setVista('mensual')" id="tv-mensual">Mensual</div>
+</div>
+
+<div class="alerta-gaps hidden" id="alerta-gaps">
+  ⚠ <span id="alerta-texto"></span>
+</div>
+
+<main id="main"></main>
+
+<!-- Modal Export/Import -->
+<div class="overlay hidden" id="overlay">
+  <div class="modal">
+    <h2>Export / Import</h2>
+
+    <div class="modal-section">
+      <div class="modal-label">EXPORTAR JSON</div>
+      <div class="modal-btns">
+        <button class="btn" onclick="exportar('dia')">📅 Este día</button>
+        <button class="btn" onclick="exportar('semana')">📆 Esta semana</button>
+        <button class="btn primary" onclick="exportar('todo')">🗂 Historial completo</button>
+      </div>
+    </div>
+
+    <div class="modal-sep"></div>
+
+    <div class="modal-section">
+      <div class="modal-label">IMPORTAR JSON (restaurar backup)</div>
+      <div class="file-drop" onclick="document.getElementById('file-input').click()">
+        📂 Clic para seleccionar archivo .json
+      </div>
+      <input type="file" id="file-input" accept=".json" onchange="importar(this)">
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" onclick="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Catálogo -->
+<div class="overlay hidden" id="overlay-cat">
+  <div class="modal-cat">
+    <h2 id="mcat-titulo">Nuevo Producto</h2>
+    <div id="mcat-body"></div>
+    <div class="modal-cat-footer">
+      <button class="btn" onclick="cerrarModalCat()">Cancelar</button>
+      <button class="btn primary" id="mcat-ok" onclick="confirmarModalCat()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CATÁLOGO BASE
+// ═══════════════════════════════════════════════════════════════
+const CAT_BASE = {
+  cafe: [
+    { cat: 'Cafés', items: [
+      { id:'c_espresso',  nombre:'Espresso',           precio:2000, activo:true },
+      { id:'c_americano', nombre:'Americano',           precio:2000, activo:true },
+      { id:'c_cortado',   nombre:'Cortado',             precio:2500, activo:true },
+      { id:'c_latte',     nombre:'Latte',               precio:2500, activo:true },
+      { id:'c_capuchino', nombre:'Capuchino',           precio:2700, activo:true },
+      { id:'c_mocachino', nombre:'Mocachino',           precio:3500, activo:true },
+      { id:'c_chocolate', nombre:'Chocolate Caliente',  precio:3500, activo:true },
+    ]},
+    { cat: 'Pastelería', items: [
+      { id:'p_kuchen',  nombre:'Kuchen de Migas',     precio:2500, activo:false },
+      { id:'p_pie',     nombre:'Pie de Limón',        precio:2500, activo:false },
+      { id:'p_brownie', nombre:'Brownie',             precio:2400, activo:false },
+      { id:'p_cupcake', nombre:'Cupcake',             precio:2200, activo:false },
+      { id:'p_queque',  nombre:'Queque de Zanahoria', precio:2200, activo:false },
+      { id:'p_waffle',  nombre:'Waffle',              precio:3500, activo:false },
+    ]},
+  ],
+  fuente: [
+    { cat: 'Hand Roll', items: [
+      { id:'hr_pollo',   nombre:'Hand Roll Pollo',   precio:3000, activo:true },
+      { id:'hr_camaron', nombre:'Hand Roll Camarón', precio:3000, activo:true },
+    ]},
+    { cat: 'Completos', items: [
+      { id:'completo',       nombre:'Completo',        precio:2500, activo:true },
+      { id:'completo_promo', nombre:'Completo Promo',  precio:4500, activo:true },
+      { id:'completo_xl',    nombre:'Completo XL',     precio:5500, activo:true },
+    ]},
+    { cat: 'Sándwiches', items: [
+      { id:'mechada',     nombre:'Sándwich Mechada', precio:10000, activo:true },
+      { id:'lomo',        nombre:'Sándwich Lomo',    precio:10000, activo:true },
+      { id:'hamburguesa', nombre:'Hamburguesa',      precio:9000,  activo:true },
+      { id:'churrasco',   nombre:'Churrasco',         precio:7000,  activo:true },
+    ]},
+    { cat: 'Papas & Extras', items: [
+      { id:'papa_chica',   nombre:'Papas Chica',       precio:1500, activo:true },
+      { id:'papa_mediana', nombre:'Papas Mediana',     precio:2000, activo:true },
+      { id:'papa_grande',  nombre:'Papas Grande',      precio:2500, activo:true },
+      { id:'salchipapa',   nombre:'Salchipapa',        precio:3500, activo:true },
+      { id:'nuggets',      nombre:'Papas con Nuggets', precio:3500, activo:true },
+    ]},
+  ],
+  compartido: [
+    { cat: 'Jugos', items: [
+      { id:'j_frambuesa',  nombre:'Jugo Frambuesa',          precio:3000, activo:true },
+      { id:'j_frutilla',   nombre:'Jugo Frutilla',           precio:2500, activo:true },
+      { id:'j_arandano',   nombre:'Jugo Arándano',           precio:2500, activo:true },
+      { id:'j_fru_ara',    nombre:'Jugo Frutilla-Arándano',  precio:2500, activo:true },
+      { id:'j_fram_ara',   nombre:'Jugo Frambuesa-Arándano', precio:2500, activo:true },
+      { id:'j_melon_tuna', nombre:'Jugo Melón Tuna',         precio:2500, activo:true },
+      { id:'j_melon_cal',  nombre:'Jugo Melón Calameño',     precio:2500, activo:true },
+      { id:'j_pina',       nombre:'Jugo Piña',               precio:2500, activo:true },
+      { id:'j_mango',      nombre:'Jugo Mango',              precio:2500, activo:true },
+      { id:'j_pina_mango', nombre:'Jugo Piña-Mango',         precio:2500, activo:true },
+      { id:'j_naranja',    nombre:'Jugo Naranja-Plátano',    precio:2500, activo:true },
+    ]},
+    { cat: 'Bebidas', items: [
+      { id:'bebidas', nombre:'Bebidas embotelladas', precio:2000, activo:true },
+    ]},
+  ]
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════════════════════════
+let catalogo  = cargarLS('orbita_cat')  || JSON.parse(JSON.stringify(CAT_BASE));
+let ventas    = cargarLS('orbita_vtas') || {};
+let vista     = 'diario';
+let fechaActiva = hoy();
+let semOff = 0, mesOff = 0;
+let editDia = {};
+
+// ═══════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════
+const DIAS  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MESES_C = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+function hoy(){ return new Date().toISOString().slice(0,10); }
+function parseFecha(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function sumarDias(s,n){ const f=parseFecha(s); f.setDate(f.getDate()+n); return f.toISOString().slice(0,10); }
+function fmtCorto(s){ const f=parseFecha(s); return `${DIAS[f.getDay()]} ${f.getDate()} ${MESES_C[f.getMonth()]}`; }
+function fmtLargo(s){ const f=parseFecha(s); return `${DIAS[f.getDay()]} ${f.getDate()} ${MESES[f.getMonth()]} ${f.getFullYear()}`; }
+function pesos(n){ return n>0 ? '$'+n.toLocaleString('es-CL') : '—'; }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
+function cargarLS(k){ try{ const s=localStorage.getItem(k); return s?JSON.parse(s):null; }catch(e){return null;} }
+function guardarLS(k,v){ localStorage.setItem(k,JSON.stringify(v)); }
+
+function inicioSemana(off){
+  const h=new Date(); const dia=h.getDay();
+  const lu=new Date(h); lu.setDate(h.getDate()-((dia+6)%7)+off*7);
+  return lu.toISOString().slice(0,10);
+}
+function diasSemana(ini){ return Array.from({length:7},(_,i)=>sumarDias(ini,i)); }
+function inicioMes(off){
+  const h=new Date(); const d=new Date(h.getFullYear(),h.getMonth()+off,1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`;
+}
+function diasMes(ini){
+  const [y,m]=ini.split('-').map(Number);
+  const total=new Date(y,m,0).getDate();
+  return Array.from({length:total},(_,i)=>`${y}-${String(m).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`);
+}
+
+function getProd(seccion, id){
+  for(const cat of catalogo[seccion]) for(const p of cat.items) if(p.id===id) return p;
+  return null;
+}
+function todosProds(seccion){
+  const arr=[]; for(const cat of catalogo[seccion]) arr.push(...cat.items); return arr;
+}
+
+function totalSeccion(seccion, dia){
+  const data = ventas[dia]?.[seccion] || {};
+  return todosProds(seccion).reduce((a,p)=>a+(data[p.id]||0)*p.precio,0);
+}
+function totalDia(dia){
+  return ['cafe','fuente','compartido'].reduce((a,s)=>a+totalSeccion(s,dia),0);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ALERTAS DE GAPS
+// ═══════════════════════════════════════════════════════════════
+function verificarGaps(){
+  const el=document.getElementById('alerta-gaps');
+  const txt=document.getElementById('alerta-texto');
+  // últimos 7 días sin contar hoy
+  const gaps=[];
+  for(let i=1;i<=7;i++){
+    const d=sumarDias(hoy(),-i);
+    if(!ventas[d] || Object.keys(ventas[d]).length===0) gaps.push(fmtCorto(d));
+  }
+  if(gaps.length===0){ el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  txt.textContent = gaps.length===1
+    ? `Sin registro: ${gaps[0]}`
+    : `Sin registro en ${gaps.length} días: ${gaps.slice(0,3).join(', ')}${gaps.length>3?' y más…':''}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NAVEGACIÓN
+// ═══════════════════════════════════════════════════════════════
+function setVista(v){
+  vista=v;
+  ['diario','semanal','mensual'].forEach(x=>{
+    document.getElementById('tv-'+x).className='tab-v'+(x===v?' active':'');
+  });
+  render();
+}
+function navDia(n){ fechaActiva=sumarDias(fechaActiva,n); editDia={}; render(); }
+function irHoy(){ fechaActiva=hoy(); editDia={}; render(); }
+function navSem(n){ semOff+=n; render(); }
+function navMes(n){ mesOff+=n; render(); }
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER PRINCIPAL
+// ═══════════════════════════════════════════════════════════════
+function render(){
+  verificarGaps();
+  if(vista==='diario') renderDiario();
+  else if(vista==='semanal') renderSemanal();
+  else renderMensual();
+}
+
+// ─── DIARIO ──────────────────────────────────────────────────
+function renderDiario(){
+  const esHoy = fechaActiva===hoy();
+  const guardado = ventas[fechaActiva] || {};
+  if(Object.keys(editDia).length===0) editDia = JSON.parse(JSON.stringify(guardado));
+  const notas = guardado.notas || '';
+
+  let html = `<div class="fecha-bar">
+    <button class="btn-nav" onclick="navDia(-1)">‹</button>
+    <div class="fecha-label">${esHoy?'HOY · ':''}${fmtLargo(fechaActiva)}</div>
+    <button class="btn-nav" onclick="navDia(1)">›</button>
+    ${!esHoy?`<button class="btn-hoy" onclick="irHoy()">Hoy</button>`:''}
+  </div>`;
+
+  ['cafe','fuente','compartido'].forEach(sec=>{
+    const label = sec==='cafe'?'☕ Café':sec==='fuente'?'🌭 Fuente':'⚡ Compartido';
+    const sub = calcSubtotalEdit(sec);
+    html += `<div class="seccion">
+      <div class="sec-header">
+        <div class="sec-dot ${sec}"></div>
+        <div class="sec-title ${sec}">${label}</div>
+        <div class="sec-subtotal">${sub>0?`<span>${pesos(sub)}</span>`:''}</div>
+      </div>`;
+
+    catalogo[sec].forEach((cat,ci)=>{
+      html += `<div class="cat-header">
+        <div class="cat-label">${esc(cat.cat)}</div>
+        <button class="btn-cat" onclick="abrirModalEditarCat('${sec}',${ci})">✏ Renombrar</button>
+        <button class="btn-cat" onclick="eliminarCat('${sec}',${ci})" style="color:var(--fire);border-color:var(--fire)">✕ Eliminar</button>
+      </div>
+        <table class="tabla">
+          <thead><tr>
+            <th style="width:32%">Producto</th>
+            <th class="r" style="width:13%">Precio</th>
+            <th class="c" style="width:16%">Vendidos</th>
+            <th class="r" style="width:16%">Subtotal</th>
+            <th class="c" style="width:9%">Activo</th>
+            <th class="c" style="width:6%"></th>
+          </tr></thead><tbody>`;
+
+      cat.items.forEach((p,pi)=>{
+        const qty = editDia[p.id] || 0;
+        const sub = qty*p.precio;
+        html += `<tr class="${p.activo?'':'inactivo'}">
+          <td><input class="inp-nombre" value="${esc(p.nombre)}"
+            onchange="editNombre('${sec}','${p.id}',this.value)"></td>
+          <td><input class="inp-precio" type="number" value="${p.precio}"
+            onchange="editPrecio('${sec}','${p.id}',this.value)" oninput="editPrecio('${sec}','${p.id}',this.value)"></td>
+          <td><div class="qty-wrap">
+            <button class="qbtn minus" onclick="cambiarQty('${p.id}',-1)" ${!p.activo?'disabled':''}>−</button>
+            <span class="qty-n${qty>0?' has':''}" id="qn-${p.id}">${qty}</span>
+            <button class="qbtn plus"  onclick="cambiarQty('${p.id}',1)"  ${!p.activo?'disabled':''}>+</button>
+          </div></td>
+          <td class="td-sub${sub>0?' has':''}" id="qs-${p.id}">${sub>0?pesos(sub):'—'}</td>
+          <td class="td-tog">
+            <button class="toggle ${p.activo?'on':'off'}" onclick="toggleActivo('${sec}','${p.id}')"></button>
+          </td>
+          <td class="td-tog">
+            <button class="btn-eliminar" onclick="eliminarProd('${sec}',${ci},${pi})" title="Eliminar producto">✕</button>
+          </td>
+        </tr>`;
+      });
+      html += `</tbody></table>
+      <button class="btn-add-prod" onclick="abrirModalNuevoProd('${sec}',${ci})">＋ Agregar producto</button>`;
+    });
+
+    html += `<button class="btn-add-cat" onclick="abrirModalNuevaCat('${sec}')">＋ Nueva categoría</button>`;
+    html += `</div>`;
+  });
+
+  // Caja del día
+  const tCafe = calcSubtotalEdit('cafe');
+  const tFuente = calcSubtotalEdit('fuente');
+  const tShared = calcSubtotalEdit('compartido');
+  const tTotal = tCafe+tFuente+tShared;
+
+  html += `<div class="caja-dia">
+    <div class="caja-grid">
+      <div class="caja-item">
+        <div class="caja-item-label">☕ Café</div>
+        <div class="caja-item-val cafe">${pesos(tCafe)}</div>
+      </div>
+      <div class="caja-item">
+        <div class="caja-item-label">🌭 Fuente</div>
+        <div class="caja-item-val fuente">${pesos(tFuente)}</div>
+      </div>
+      <div class="caja-item">
+        <div class="caja-item-label">⚡ Compartido</div>
+        <div class="caja-item-val shared">${pesos(tShared)}</div>
+      </div>
+      <div class="caja-item">
+        <div class="caja-item-label">TOTAL DÍA</div>
+        <div class="caja-item-val total">${tTotal>0?'$'+tTotal.toLocaleString('es-CL'):'$0'}</div>
+      </div>
+    </div>
+    <div class="caja-footer">
+      <textarea class="notas-input" id="notas-dia" placeholder="Notas del día (clima, eventos, observaciones...)">${esc(notas)}</textarea>
+      <button class="btn-guardar" id="btn-grd" onclick="guardarDia()">Guardar</button>
+    </div>
+  </div>`;
+
+  document.getElementById('main').innerHTML = html;
+}
+
+function calcSubtotalEdit(sec){
+  return todosProds(sec).reduce((a,p)=>a+(editDia[p.id]||0)*p.precio,0);
+}
+
+function cambiarQty(id, delta){
+  editDia[id] = Math.max(0,(editDia[id]||0)+delta);
+  const qty=editDia[id];
+  const prod = ['cafe','fuente','compartido'].flatMap(s=>todosProds(s)).find(p=>p.id===id);
+  const precio = prod ? prod.precio : 0;
+  const sub=qty*precio;
+  const qn=document.getElementById('qn-'+id);
+  const qs=document.getElementById('qs-'+id);
+  if(qn){qn.textContent=qty;qn.className='qty-n'+(qty>0?' has':'');}
+  if(qs){qs.textContent=qty>0?pesos(sub):'—';qs.className='td-sub'+(qty>0?' has':'');}
+  actualizarCaja();
+}
+
+function actualizarCaja(){
+  // solo actualiza los valores de caja sin re-renderizar todo
+  const tC=calcSubtotalEdit('cafe');
+  const tF=calcSubtotalEdit('fuente');
+  const tS=calcSubtotalEdit('compartido');
+  const tT=tC+tF+tS;
+  const vals=document.querySelectorAll('.caja-item-val');
+  if(vals[0]) vals[0].textContent=tC>0?pesos(tC):"$0";
+  if(vals[1]) vals[1].textContent=tF>0?pesos(tF):"$0";
+  if(vals[2]) vals[2].textContent=tS>0?pesos(tS):"$0";
+  if(vals[3]) vals[3].textContent='$'+tT.toLocaleString('es-CL');
+}
+
+function guardarDia(){
+  const data={};
+  ['cafe','fuente','compartido'].forEach(sec=>{
+    data[sec]={};
+    todosProds(sec).forEach(p=>{ if(editDia[p.id]>0) data[sec][p.id]=editDia[p.id]; });
+  });
+  const notas=document.getElementById('notas-dia')?.value||'';
+  if(notas) data.notas=notas;
+  ventas[fechaActiva]=data;
+  guardarLS('orbita_vtas',ventas);
+  const btn=document.getElementById('btn-grd');
+  btn.textContent='✓ Guardado'; btn.classList.add('ok');
+  setTimeout(()=>{btn.textContent='Guardar';btn.classList.remove('ok');},1800);
+  toast('Ventas guardadas','ok');
+  verificarGaps();
+}
+
+function editNombre(sec,id,val){
+  const p=getProd(sec,id); if(p&&val.trim()) p.nombre=val.trim();
+  guardarLS('orbita_cat',catalogo);
+}
+function editPrecio(sec,id,val){
+  const p=getProd(sec,id); if(!p) return;
+  p.precio = Math.max(0, parseInt(val)||0);
+  guardarLS('orbita_cat',catalogo);
+  const qty = editDia[id]||0;
+  const sub = qty*p.precio;
+  const qs = document.getElementById('qs-'+id);
+  if(qs){ qs.textContent=qty>0?pesos(sub):'—'; qs.className='td-sub'+(qty>0?' has':''); }
+  actualizarCaja();
+}
+function toggleActivo(sec,id){
+  const p=getProd(sec,id); if(p) p.activo=!p.activo;
+  guardarLS('orbita_cat',catalogo);
+  renderDiario();
+}
+
+// ─── SEMANAL ─────────────────────────────────────────────────
+function renderSemanal(){
+  const ini = inicioSemana(semOff);
+  const fin = sumarDias(ini,6);
+  const dias = diasSemana(ini);
+
+  let html = `<div class="fecha-bar">
+    <button class="btn-nav" onclick="navSem(-1)">‹</button>
+    <div class="periodo-label">${fmtCorto(ini)} – ${fmtCorto(fin)}</div>
+    <button class="btn-nav" onclick="navSem(1)">›</button>
+  </div><div class="resumen-wrap"><table class="tabla-res"><thead><tr>
+    <th>Producto</th>`;
+  dias.forEach(d=>{
+    const f=parseFecha(d); const esH=d===hoy();
+    html+=`<th class="${esH?'hoy-col':''}">${DIAS[f.getDay()]}<br>${f.getDate()}</th>`;
+  });
+  html+=`<th>Total</th></tr></thead><tbody>`;
+
+  let totDias=Array(7).fill(0), granTotal=0;
+
+  ['cafe','fuente','compartido'].forEach(sec=>{
+    const label=sec==='cafe'?'☕ CAFÉ':sec==='fuente'?'🌭 FUENTE':'⚡ COMPARTIDO';
+    html+=`<tr class="cat-row"><td colspan="${9}">${label}</td></tr>`;
+    catalogo[sec].forEach(cat=>{
+      html+=`<tr class="cat-row" style="opacity:.5"><td colspan="${9}" style="padding-left:20px">${cat.cat}</td></tr>`;
+      cat.items.forEach(p=>{
+        let totP=0;
+        html+=`<tr><td>${esc(p.nombre)}</td>`;
+        dias.forEach((d,i)=>{
+          const qty=(ventas[d]?.[sec]?.[p.id])||0;
+          const sub=qty*p.precio;
+          totDias[i]+=sub; totP+=sub;
+          html+=`<td class="${sub>0?'hi':''}">${qty>0?qty:'—'}</td>`;
+        });
+        granTotal+=totP;
+        html+=`<td class="${totP>0?'hi':''}">${pesos(totP)}</td></tr>`;
+      });
+    });
+    // notas
+    html+=`<tr class="cat-row" style="opacity:.4"><td colspan="${9}" style="padding-left:20px">Notas</td></tr>`;
+    dias.forEach((d,i)=>{
+      // solo mostramos fila notas una vez con todas las columnas
+      if(i===0){
+        html+=`<tr><td style="color:var(--muted);font-size:.75rem;font-style:italic">Notas del día</td>`;
+        dias.forEach(d2=>{
+          const n=ventas[d2]?.notas||'';
+          html+=`<td class="notas-cell">${n?esc(n.substring(0,20))+(n.length>20?'…':''):'—'}</td>`;
+        });
+        html+=`<td>—</td></tr>`;
+      }
+    });
+  });
+
+  html+=`<tr class="total-row"><td>TOTAL DÍA</td>`;
+  totDias.forEach((t,i)=>{
+    const esH=dias[i]===hoy();
+    html+=`<td class="${t>0?'hi':''} ${esH?'hoy-col':''}">${pesos(t)}</td>`;
+  });
+  html+=`<td style="color:var(--ok);font-size:.9rem">${pesos(granTotal)}</td></tr>`;
+  html+=`</tbody></table></div>`;
+
+  document.getElementById('main').innerHTML=html;
+}
+
+// ─── MENSUAL ─────────────────────────────────────────────────
+function renderMensual(){
+  const ini=inicioMes(mesOff);
+  const [y,m]=ini.split('-').map(Number);
+  const dias=diasMes(ini);
+  // agrupar en semanas
+  const semanas=[];
+  for(let i=0;i<dias.length;i+=7) semanas.push(dias.slice(i,i+7));
+
+  let html=`<div class="fecha-bar">
+    <button class="btn-nav" onclick="navMes(-1)">‹</button>
+    <div class="periodo-label">${MESES[m-1]} ${y}</div>
+    <button class="btn-nav" onclick="navMes(1)">›</button>
+  </div><div class="resumen-wrap"><table class="tabla-res"><thead><tr>
+    <th>Producto</th>`;
+  semanas.forEach((s,i)=>{
+    const fi=parseFecha(s[0]),ff=parseFecha(s[s.length-1]);
+    html+=`<th>Sem ${i+1}<br><span style="font-weight:400;font-size:.6rem">${fi.getDate()}–${ff.getDate()}</span></th>`;
+  });
+  html+=`<th>Total mes</th></tr></thead><tbody>`;
+
+  let totSems=Array(semanas.length).fill(0), granTotal=0;
+
+  ['cafe','fuente','compartido'].forEach(sec=>{
+    const label=sec==='cafe'?'☕ CAFÉ':sec==='fuente'?'🌭 FUENTE':'⚡ COMPARTIDO';
+    html+=`<tr class="cat-row"><td colspan="${semanas.length+2}">${label}</td></tr>`;
+    catalogo[sec].forEach(cat=>{
+      html+=`<tr class="cat-row" style="opacity:.5"><td colspan="${semanas.length+2}" style="padding-left:20px">${cat.cat}</td></tr>`;
+      cat.items.forEach(p=>{
+        let totP=0;
+        html+=`<tr><td>${esc(p.nombre)}</td>`;
+        semanas.forEach((sem,si)=>{
+          let subSem=0;
+          sem.forEach(d=>{ subSem+=(ventas[d]?.[sec]?.[p.id]||0)*p.precio; });
+          totSems[si]+=subSem; totP+=subSem;
+          html+=`<td class="${subSem>0?'hi':''}">${pesos(subSem)}</td>`;
+        });
+        granTotal+=totP;
+        html+=`<td class="${totP>0?'hi':''}">${pesos(totP)}</td></tr>`;
+      });
+    });
+  });
+
+  html+=`<tr class="total-row"><td>TOTAL SEMANA</td>`;
+  totSems.forEach(t=>{ html+=`<td class="${t>0?'hi':''}">${pesos(t)}</td>`; });
+  html+=`<td style="color:var(--ok);font-size:.9rem">${pesos(granTotal)}</td></tr>`;
+  html+=`</tbody></table></div>`;
+
+  document.getElementById('main').innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════════════
+function abrirModal(){ document.getElementById('overlay').classList.remove('hidden'); }
+function cerrarModal(){ document.getElementById('overlay').classList.add('hidden'); }
+document.getElementById('overlay').addEventListener('click',function(e){
+  if(e.target===this) cerrarModal();
+});
+
+function exportar(modo){
+  let datos={}, label='';
+  const meta={
+    exportado: new Date().toISOString(),
+    version:'1.0',
+    catalogo: catalogo
+  };
+
+  if(modo==='dia'){
+    datos[fechaActiva] = ventas[fechaActiva]||{};
+    label=fechaActiva;
+  } else if(modo==='semana'){
+    const ini=inicioSemana(semOff);
+    diasSemana(ini).forEach(d=>{ if(ventas[d]) datos[d]=ventas[d]; });
+    label=`semana-${ini}`;
+  } else {
+    datos=ventas;
+    label='historial-completo';
+  }
+
+  const json=JSON.stringify({...meta, ventas:datos},null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`orbita-stock-${label}.json`; a.click();
+  URL.revokeObjectURL(url);
+  toast('JSON exportado','ok');
+  cerrarModal();
+}
+
+function importar(input){
+  const file=input.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.ventas) throw new Error('Formato inválido');
+      // merge ventas
+      Object.assign(ventas, data.ventas);
+      guardarLS('orbita_vtas',ventas);
+      // merge catálogo si existe
+      if(data.catalogo){
+        catalogo=data.catalogo;
+        guardarLS('orbita_cat',catalogo);
+      }
+      toast('Backup importado correctamente','ok');
+      cerrarModal();
+      editDia={};
+      render();
+    } catch(err){
+      toast('Error: archivo inválido','err');
+    }
+  };
+  r.readAsText(file);
+  input.value='';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════════
+function toast(msg,tipo='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=(tipo==='ok'?'✓ ':tipo==='warn'?'⚠ ':'✕ ')+msg;
+  t.className=`show ${tipo}`;
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>{ t.className=''; },2200);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GESTIÓN CATÁLOGO — PRODUCTOS Y CATEGORÍAS
+// ═══════════════════════════════════════════════════════════════
+let _mcat = {}; // estado interno del modal
+
+function abrirModalCat(titulo, bodyHTML, onConfirm){
+  _mcat.onConfirm = onConfirm;
+  document.getElementById('mcat-titulo').textContent = titulo;
+  document.getElementById('mcat-body').innerHTML = bodyHTML;
+  document.getElementById('overlay-cat').classList.remove('hidden');
+  setTimeout(()=>{ const f=document.querySelector('#mcat-body .field-input'); if(f) f.focus(); },80);
+}
+function cerrarModalCat(){
+  document.getElementById('overlay-cat').classList.add('hidden');
+  _mcat = {};
+}
+function confirmarModalCat(){
+  if(_mcat.onConfirm) _mcat.onConfirm();
+}
+document.getElementById('overlay-cat').addEventListener('click',function(e){
+  if(e.target===this) cerrarModalCat();
+});
+
+// ── Nuevo producto ──
+function abrirModalNuevoProd(sec, ci){
+  abrirModalCat('Nuevo Producto',
+    `<div class="field-group">
+      <div class="field-label">Nombre</div>
+      <input class="field-input" id="mf-nombre" placeholder="Ej: Sándwich Veggie" autocomplete="off">
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <div class="field-label">Precio ($)</div>
+        <input class="field-input" id="mf-precio" type="number" placeholder="0" min="0">
+      </div>
+    </div>`,
+    ()=>{
+      const nombre = document.getElementById('mf-nombre').value.trim();
+      const precio = Math.max(0, parseInt(document.getElementById('mf-precio').value)||0);
+      if(!nombre){ toast('Ingresa un nombre','warn'); return; }
+      const id = sec[0]+'_'+nombre.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'')+'_'+Date.now();
+      catalogo[sec][ci].items.push({ id, nombre, precio, activo:true });
+      guardarLS('orbita_cat', catalogo);
+      cerrarModalCat();
+      toast('Producto agregado','ok');
+      renderDiario();
+    }
+  );
+}
+
+// ── Eliminar producto ──
+function eliminarProd(sec, ci, pi){
+  const p = catalogo[sec][ci].items[pi];
+  if(!confirm(`¿Eliminar "${p.nombre}"?\nSe borrará del catálogo (no afecta ventas registradas).`)) return;
+  catalogo[sec][ci].items.splice(pi,1);
+  guardarLS('orbita_cat', catalogo);
+  toast('Producto eliminado','ok');
+  renderDiario();
+}
+
+// ── Nueva categoría ──
+function abrirModalNuevaCat(sec){
+  abrirModalCat('Nueva Categoría',
+    `<div class="field-group">
+      <div class="field-label">Nombre de la categoría</div>
+      <input class="field-input" id="mf-catnom" placeholder="Ej: Ensaladas" autocomplete="off">
+    </div>`,
+    ()=>{
+      const nombre = document.getElementById('mf-catnom').value.trim();
+      if(!nombre){ toast('Ingresa un nombre','warn'); return; }
+      catalogo[sec].push({ cat: nombre, items: [] });
+      guardarLS('orbita_cat', catalogo);
+      cerrarModalCat();
+      toast('Categoría creada','ok');
+      renderDiario();
+    }
+  );
+}
+
+// ── Renombrar categoría ──
+function abrirModalEditarCat(sec, ci){
+  const actual = catalogo[sec][ci].cat;
+  abrirModalCat('Renombrar Categoría',
+    `<div class="field-group">
+      <div class="field-label">Nombre</div>
+      <input class="field-input" id="mf-catnom" value="${esc(actual)}" autocomplete="off">
+    </div>`,
+    ()=>{
+      const nombre = document.getElementById('mf-catnom').value.trim();
+      if(!nombre){ toast('Ingresa un nombre','warn'); return; }
+      catalogo[sec][ci].cat = nombre;
+      guardarLS('orbita_cat', catalogo);
+      cerrarModalCat();
+      toast('Categoría renombrada','ok');
+      renderDiario();
+    }
+  );
+}
+
+// ── Eliminar categoría ──
+function eliminarCat(sec, ci){
+  const cat = catalogo[sec][ci];
+  if(!confirm(`¿Eliminar la categoría "${cat.cat}" y sus ${cat.items.length} producto(s)?\nEsto no afecta ventas registradas.`)) return;
+  catalogo[sec].splice(ci,1);
+  guardarLS('orbita_cat', catalogo);
+  toast('Categoría eliminada','ok');
+  renderDiario();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+render();
+</script>
+</body>
+</html>
