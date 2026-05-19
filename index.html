@@ -602,7 +602,14 @@ function render(){
 function renderDiario(){
   const esHoy = fechaActiva===hoy();
   const guardado = ventas[fechaActiva] || {};
-  if(Object.keys(editDia).length===0) editDia = JSON.parse(JSON.stringify(guardado));
+  if(Object.keys(editDia).length===0){
+    // aplanar ventas { cafe:{id:qty}, fuente:{...} } -> { id:qty, ... }
+    editDia = {};
+    ['cafe','fuente','compartido'].forEach(sec=>{
+      const s = guardado[sec] || {};
+      Object.entries(s).forEach(([id,qty])=>{ if(id!=='notas') editDia[id]=qty; });
+    });
+  }
   const notas = guardado.notas || '';
 
   let html = `<div class="fecha-bar">
