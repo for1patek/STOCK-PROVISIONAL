@@ -354,6 +354,7 @@ main{padding:16px 24px 80px;max-width:1080px;margin:0 auto;}
 
 <header>
   <div class="logo">ÓRBIT<em>A</em><small>STOCK PROVISIONAL</small></div>
+  <div id="online-dot" title="Conectado" style="width:8px;height:8px;border-radius:50%;background:var(--ok);flex-shrink:0;margin-left:-4px;transition:background .3s;"></div>
   <div class="header-actions">
     <button class="btn" onclick="abrirModal()">⬆ Export / Import</button>
   </div>
@@ -417,15 +418,83 @@ main{padding:16px 24px 80px;max-width:1080px;margin:0 auto;}
 
 <script>
 // ═══════════════════════════════════════════════════════════════
-// SUPABASE CONFIG
+// SUPABASE + OFFLINE-FIRST
 // ═══════════════════════════════════════════════════════════════
 const SB_URL = 'https://exljwmibglouwrzlyiip.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4bGp3bWliZ2xvdXdyemx5aWlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNTA5NTksImV4cCI6MjA5NDcyNjk1OX0.fN4abGDSUaZGb9Eisn8JgtGF0_E9exETJWgaMStZlEU';
 const SB_HDR = { 'Content-Type':'application/json', 'apikey':SB_KEY, 'Authorization':`Bearer ${SB_KEY}`, 'Prefer':'resolution=merge-duplicates' };
+
+// ── Estado de conexión ──
+let online = navigator.onLine;
+let pendingSync = JSON.parse(localStorage.getItem('orbita_pending') || '{}');
+// pendingSync = { 'catalogo': true, '2026-05-18': true, ... }
+
+function setPending(key){
+  pendingSync[key] = true;
+  localStorage.setItem('orbita_pending', JSON.stringify(pendingSync));
+}
+function clearPending(key){
+  delete pendingSync[key];
+  localStorage.setItem('orbita_pending', JSON.stringify(pendingSync));
+}
+function updateOnlineIndicator(){
+  const el = document.getElementById('online-dot');
+  if(!el) return;
+  el.title = online ? 'Conectado' : 'Sin conexión — guardando localmente';
+  el.style.background = online ? 'var(--ok)' : 'var(--warn)';
+}
+window.addEventListener('online',  ()=>{ online=true;  updateOnlineIndicator(); sincronizarPendientes(); toast('Conexión restaurada — sincronizando...','ok'); });
+window.addEventListener('offline', ()=>{ online=false; updateOnlineIndicator(); toast('Sin conexión — guardando localmente','warn'); });
+
+// ── Supabase raw ──
 async function sbGetCatalogo(){ const r=await fetch(`${SB_URL}/rest/v1/catalogo?id=eq.main&select=data`,{headers:SB_HDR}); const d=await r.json(); return d[0]?.data||null; }
 async function sbSetCatalogo(data){ await fetch(`${SB_URL}/rest/v1/catalogo`,{method:'POST',headers:SB_HDR,body:JSON.stringify({id:'main',data,updated_at:new Date().toISOString()})}); }
 async function sbGetVentas(){ const r=await fetch(`${SB_URL}/rest/v1/ventas?select=fecha,data`,{headers:SB_HDR}); const rows=await r.json(); const obj={}; if(Array.isArray(rows)) rows.forEach(row=>{obj[row.fecha]=row.data;}); return obj; }
 async function sbSetVenta(fecha,data){ await fetch(`${SB_URL}/rest/v1/ventas`,{method:'POST',headers:SB_HDR,body:JSON.stringify({fecha,data,updated_at:new Date().toISOString()})}); }
+
+// ── Guardar con offline-first ──
+async function guardarCatalogo(){
+  // siempre guardar local
+  localStorage.setItem('orbita_cat', JSON.stringify(catalogo));
+  if(online){
+    try{ await sbSetCatalogo(catalogo); clearPending('catalogo'); }
+    catch(e){ setPending('catalogo'); }
+  } else {
+    setPending('catalogo');
+  }
+}
+async function guardarVenta(fecha, data){
+  // siempre guardar local
+  const vtasLS = JSON.parse(localStorage.getItem('orbita_vtas')||'{}');
+  vtasLS[fecha] = data;
+  localStorage.setItem('orbita_vtas', JSON.stringify(vtasLS));
+  if(online){
+    try{ await sbSetVenta(fecha, data); clearPending(fecha); }
+    catch(e){ setPending(fecha); }
+  } else {
+    setPending(fecha);
+  }
+}
+
+// ── Sincronizar pendientes al reconectar ──
+async function sincronizarPendientes(){
+  const keys = Object.keys(pendingSync);
+  if(keys.length===0) return;
+  let ok=0, fail=0;
+  for(const key of keys){
+    try{
+      if(key==='catalogo'){
+        await sbSetCatalogo(catalogo);
+      } else {
+        const vtasLS = JSON.parse(localStorage.getItem('orbita_vtas')||'{}');
+        if(vtasLS[key]) await sbSetVenta(key, vtasLS[key]);
+      }
+      clearPending(key); ok++;
+    } catch(e){ fail++; }
+  }
+  if(ok>0) toast(`${ok} cambio(s) sincronizados`, 'ok');
+  if(fail>0) toast(`${fail} cambio(s) pendientes`, 'warn');
+}
 
 // ═══════════════════════════════════════════════════════════════
 // CATÁLOGO BASE
@@ -751,7 +820,7 @@ async function guardarDia(){
   const btn=document.getElementById('btn-grd');
   btn.textContent='⏳ Guardando...'; btn.disabled=true;
   try{
-    await sbSetVenta(fechaActiva, data);
+    await guardarVenta(fechaActiva, data);
     btn.textContent='✓ Guardado'; btn.classList.add('ok');
     setTimeout(()=>{btn.textContent='Guardar';btn.classList.remove('ok');btn.disabled=false;},1800);
     toast('Ventas guardadas','ok');
@@ -764,12 +833,12 @@ async function guardarDia(){
 
 function editNombre(sec,id,val){
   const p=getProd(sec,id); if(p&&val.trim()) p.nombre=val.trim();
-  sbSetCatalogo(catalogo).catch(()=>toast('Error al guardar catálogo','err'));
+  guardarCatalogo();
 }
 function editPrecio(sec,id,val){
   const p=getProd(sec,id); if(!p) return;
   p.precio = Math.max(0, parseInt(val)||0);
-  sbSetCatalogo(catalogo).catch(()=>toast('Error al guardar catálogo','err'));
+  guardarCatalogo();
   const qty = editDia[id]||0;
   const sub = qty*p.precio;
   const qs = document.getElementById('qs-'+id);
@@ -778,7 +847,7 @@ function editPrecio(sec,id,val){
 }
 function toggleActivo(sec,id){
   const p=getProd(sec,id); if(p) p.activo=!p.activo;
-  sbSetCatalogo(catalogo).catch(()=>toast('Error al guardar catálogo','err'));
+  guardarCatalogo();
   renderDiario();
 }
 
@@ -946,19 +1015,14 @@ function importar(input){
       // merge ventas
       Object.assign(ventas, data.ventas);
       // subir ventas a Supabase
-      const promesasVentas = Object.entries(ventas).map(([fecha,d])=>sbSetVenta(fecha,d));
-      // merge catálogo si existe
-      if(data.catalogo){
-        catalogo=data.catalogo;
-      }
-      Promise.all([...promesasVentas, sbSetCatalogo(catalogo)])
-        .then(()=>{
-          toast('Backup importado correctamente','ok');
-          cerrarModal();
-          editDia={};
-          render();
-        })
-        .catch(()=>toast('Error al importar a Supabase','err'));
+      if(data.catalogo){ catalogo=data.catalogo; }
+      // guardar todo offline-first
+      const promesas = Object.entries(ventas).map(([fecha,d])=>guardarVenta(fecha,d));
+      promesas.push(guardarCatalogo());
+      Promise.all(promesas).then(()=>{
+        toast('Backup importado correctamente','ok');
+        cerrarModal(); editDia={}; render();
+      }).catch(()=>toast('Error al importar','err'));
     } catch(err){
       toast('Error: archivo inválido','err');
     }
@@ -1020,7 +1084,7 @@ function abrirModalNuevoProd(sec, ci){
       if(!nombre){ toast('Ingresa un nombre','warn'); return; }
       const id = sec[0]+'_'+nombre.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'')+'_'+Date.now();
       catalogo[sec][ci].items.push({ id, nombre, precio, activo:true });
-      sbSetCatalogo(catalogo).catch(()=>toast('Error al guardar catálogo','err'));
+      guardarCatalogo();
       cerrarModalCat();
       toast('Producto agregado','ok');
       renderDiario();
@@ -1033,7 +1097,7 @@ function eliminarProd(sec, ci, pi){
   const p = catalogo[sec][ci].items[pi];
   if(!confirm(`¿Eliminar "${p.nombre}"?\nSe borrará del catálogo (no afecta ventas registradas).`)) return;
   catalogo[sec][ci].items.splice(pi,1);
-  sbSetCatalogo(catalogo).catch(()=>toast('Error al guardar catálogo','err'));
+  guardarCatalogo();
   toast('Producto eliminado','ok');
   renderDiario();
 }
@@ -1049,7 +1113,7 @@ function abrirModalNuevaCat(sec){
       const nombre = document.getElementById('mf-catnom').value.trim();
       if(!nombre){ toast('Ingresa un nombre','warn'); return; }
       catalogo[sec].push({ cat: nombre, items: [] });
-      sbSetCatalogo(catalogo).catch(()=>toast('Error al guardar catálogo','err'));
+      guardarCatalogo();
       cerrarModalCat();
       toast('Categoría creada','ok');
       renderDiario();
@@ -1069,7 +1133,7 @@ function abrirModalEditarCat(sec, ci){
       const nombre = document.getElementById('mf-catnom').value.trim();
       if(!nombre){ toast('Ingresa un nombre','warn'); return; }
       catalogo[sec][ci].cat = nombre;
-      sbSetCatalogo(catalogo).catch(()=>toast('Error al guardar catálogo','err'));
+      guardarCatalogo();
       cerrarModalCat();
       toast('Categoría renombrada','ok');
       renderDiario();
@@ -1082,28 +1146,53 @@ function eliminarCat(sec, ci){
   const cat = catalogo[sec][ci];
   if(!confirm(`¿Eliminar la categoría "${cat.cat}" y sus ${cat.items.length} producto(s)?\nEsto no afecta ventas registradas.`)) return;
   catalogo[sec].splice(ci,1);
-  sbSetCatalogo(catalogo).catch(()=>toast('Error al guardar catálogo','err'));
+  guardarCatalogo();
   toast('Categoría eliminada','ok');
   renderDiario();
 }
 
 // ═══════════════════════════════════════════════════════════════
-// INIT — cargar desde Supabase
+// INIT — Supabase con fallback offline
 // ═══════════════════════════════════════════════════════════════
 async function init(){
-  // mostrar pantalla de carga
   document.getElementById('main').innerHTML = `
     <div style="text-align:center;padding:80px 0;color:var(--muted);">
       <div style="font-size:2rem;margin-bottom:16px;">⏳</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.1em;">Cargando datos...</div>
     </div>`;
-  try{
-    const [catRemoto, vtasRemoto] = await Promise.all([sbGetCatalogo(), sbGetVentas()]);
-    if(catRemoto) catalogo = catRemoto;
-    if(vtasRemoto) ventas = vtasRemoto;
-  } catch(e){
-    toast('Sin conexión — trabajando offline','warn');
+
+  // intentar cargar desde Supabase
+  if(online){
+    try{
+      const [catRemoto, vtasRemoto] = await Promise.all([sbGetCatalogo(), sbGetVentas()]);
+      if(catRemoto){
+        catalogo = catRemoto;
+        localStorage.setItem('orbita_cat', JSON.stringify(catalogo));
+      }
+      if(vtasRemoto){
+        ventas = vtasRemoto;
+        localStorage.setItem('orbita_vtas', JSON.stringify(ventas));
+      }
+      // sincronizar pendientes que quedaron de sesiones offline
+      await sincronizarPendientes();
+    } catch(e){
+      // Supabase falló, usar localStorage
+      const lsCat = localStorage.getItem('orbita_cat');
+      const lsVtas = localStorage.getItem('orbita_vtas');
+      if(lsCat) catalogo = JSON.parse(lsCat);
+      if(lsVtas) ventas = JSON.parse(lsVtas);
+      toast('Error al conectar — usando datos locales','warn');
+    }
+  } else {
+    // sin internet, usar localStorage directamente
+    const lsCat = localStorage.getItem('orbita_cat');
+    const lsVtas = localStorage.getItem('orbita_vtas');
+    if(lsCat) catalogo = JSON.parse(lsCat);
+    if(lsVtas) ventas = JSON.parse(lsVtas);
+    toast('Sin conexión — usando datos locales','warn');
   }
+
+  updateOnlineIndicator();
   render();
 }
 init();
