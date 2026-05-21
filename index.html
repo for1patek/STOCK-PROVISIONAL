@@ -305,6 +305,63 @@ main{padding:16px 24px 80px;max-width:1080px;margin:0 auto;}
 .field-row .field-group{flex:1;}
 .modal-cat-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
 
+/* ── CONSUMO PERSONAL ── */
+.consumo-seccion{
+  margin-bottom:28px;
+  border:1px solid rgba(155,113,200,.25);
+  border-radius:var(--r);
+  padding:14px 16px;
+  background:rgba(100,80,160,.05);
+}
+.consumo-header{
+  display:flex;align-items:center;gap:10px;margin-bottom:10px;
+  padding-bottom:8px;border-bottom:1px solid rgba(155,113,200,.2);
+}
+.consumo-dot{width:8px;height:8px;border-radius:50%;background:#b08fd4;flex-shrink:0;}
+.consumo-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.1em;color:#b08fd4;}
+.consumo-badge{
+  margin-left:auto;padding:2px 10px;border-radius:10px;
+  background:rgba(155,113,200,.15);border:1px solid rgba(155,113,200,.3);
+  font-size:.62rem;font-weight:600;letter-spacing:.1em;color:#b08fd4;text-transform:uppercase;
+}
+.consumo-items{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.consumo-chip{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:20px;
+  background:var(--s2);border:1px solid var(--border2);
+  font-size:.78rem;color:var(--text);
+}
+.consumo-chip .chip-qty{
+  font-family:'DM Mono',monospace;font-weight:600;color:#b08fd4;font-size:.82rem;
+}
+.consumo-chip .chip-del{
+  background:none;border:none;color:var(--muted2);cursor:pointer;font-size:.75rem;
+  padding:0 0 0 2px;line-height:1;transition:color .12s;
+}
+.consumo-chip .chip-del:hover{color:var(--fire);}
+.consumo-add-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.consumo-select{
+  flex:1;min-width:160px;background:var(--s2);border:1px solid var(--border2);
+  border-radius:6px;padding:7px 10px;color:var(--text);font-family:'DM Sans',sans-serif;
+  font-size:.82rem;outline:none;
+}
+.consumo-select:focus{border-color:var(--muted);}
+.consumo-qty-inp{
+  width:64px;background:var(--s2);border:1px solid var(--border2);
+  border-radius:6px;padding:7px 10px;color:var(--text);font-family:'DM Mono',monospace;
+  font-size:.82rem;outline:none;text-align:center;
+}
+.consumo-qty-inp:focus{border-color:var(--muted);}
+.btn-consumo-add{
+  padding:7px 14px;border-radius:6px;border:1px solid rgba(155,113,200,.4);
+  background:rgba(155,113,200,.1);color:#b08fd4;font-size:.78rem;cursor:pointer;
+  transition:all .12s;white-space:nowrap;
+}
+.btn-consumo-add:hover{background:rgba(155,113,200,.2);border-color:#b08fd4;}
+.consumo-empty{
+  font-size:.78rem;color:var(--muted2);font-style:italic;padding:4px 0;
+}
+
 /* ── MODAL EXPORT / IMPORT ── */
 .overlay{
   position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;
@@ -572,6 +629,7 @@ let vista     = 'diario';
 let fechaActiva = hoy();
 let semOff = 0, mesOff = 0;
 let editDia = {};
+let consumoDia = {}; // { id: qty } — consumo personal, no cuenta como venta
 
 // ═══════════════════════════════════════════════════════════════
 // UTILS
@@ -652,8 +710,8 @@ function setVista(v){
   });
   render();
 }
-function navDia(n){ fechaActiva=sumarDias(fechaActiva,n); editDia={}; render(); }
-function irHoy(){ fechaActiva=hoy(); editDia={}; render(); }
+function navDia(n){ fechaActiva=sumarDias(fechaActiva,n); editDia={}; consumoDia={}; render(); }
+function irHoy(){ fechaActiva=hoy(); editDia={}; consumoDia={}; render(); }
 function navSem(n){ semOff+=n; render(); }
 function navMes(n){ mesOff+=n; render(); }
 
@@ -671,13 +729,26 @@ function render(){
 function renderDiario(){
   const esHoy = fechaActiva===hoy();
   const guardado = ventas[fechaActiva] || {};
+  // Siempre reconstruir editDia desde ventas guardadas + IDs del catálogo actual
+  // Esto garantiza que productos nuevos tengan entrada (0) y no se pierdan cantidades guardadas
+  const savedFlat = {};
+  ['cafe','fuente','compartido'].forEach(sec=>{
+    const s = guardado[sec] || {};
+    Object.entries(s).forEach(([id,qty])=>{ if(id!=='notas') savedFlat[id]=qty; });
+  });
+  // Preservar ediciones en curso si hay, sino usar guardado
   if(Object.keys(editDia).length===0){
-    // aplanar ventas { cafe:{id:qty}, fuente:{...} } -> { id:qty, ... }
-    editDia = {};
+    editDia = {...savedFlat};
+  } else {
+    // Asegurarse que productos nuevos del catálogo estén presentes con 0
     ['cafe','fuente','compartido'].forEach(sec=>{
-      const s = guardado[sec] || {};
-      Object.entries(s).forEach(([id,qty])=>{ if(id!=='notas') editDia[id]=qty; });
+      todosProds(sec).forEach(p=>{ if(!(p.id in editDia)) editDia[p.id]=0; });
     });
+  }
+  // Cargar consumo guardado
+  if(Object.keys(consumoDia).length===0){
+    const c = guardado.consumo || {};
+    consumoDia = {...c};
   }
   const notas = guardado.notas || '';
 
@@ -744,6 +815,9 @@ function renderDiario(){
     html += `</div>`;
   });
 
+  // ── Consumo Personal ──
+  html += renderConsumoHTML();
+
   // Caja del día
   const tCafe = calcSubtotalEdit('cafe');
   const tFuente = calcSubtotalEdit('fuente');
@@ -782,6 +856,126 @@ function calcSubtotalEdit(sec){
   return todosProds(sec).reduce((a,p)=>a+(editDia[p.id]||0)*p.precio,0);
 }
 
+// ─── CONSUMO PERSONAL ────────────────────────────────────────
+function renderConsumoHTML(){
+  // Construir lista de todos los productos con sus nombres
+  const allProds = [];
+  ['cafe','fuente','compartido'].forEach(sec=>{
+    catalogo[sec].forEach(cat=>{
+      cat.items.forEach(p=>{
+        if(p.activo) allProds.push({id:p.id, nombre:p.nombre, sec});
+      });
+    });
+  });
+
+  // chips de consumo actual
+  let chips = '';
+  const consumoEntradas = Object.entries(consumoDia).filter(([,q])=>q>0);
+  if(consumoEntradas.length===0){
+    chips = `<span class="consumo-empty">Sin consumo registrado hoy</span>`;
+  } else {
+    consumoEntradas.forEach(([id,qty])=>{
+      const prod = allProds.find(p=>p.id===id);
+      const nombre = prod ? prod.nombre : id;
+      chips += `<div class="consumo-chip">
+        <span class="chip-qty">${qty}×</span>
+        <span>${esc(nombre)}</span>
+        <button class="chip-del" onclick="quitarConsumo('${id}')" title="Quitar">✕</button>
+      </div>`;
+    });
+  }
+
+  // select de productos
+  let opts = `<option value="">— Seleccionar producto —</option>`;
+  ['cafe','fuente','compartido'].forEach(sec=>{
+    const label = sec==='cafe'?'☕ Café':sec==='fuente'?'🌭 Fuente':'⚡ Compartido';
+    opts += `<optgroup label="${label}">`;
+    catalogo[sec].forEach(cat=>{
+      cat.items.forEach(p=>{
+        if(p.activo) opts += `<option value="${p.id}">${esc(p.nombre)}</option>`;
+      });
+    });
+    opts += `</optgroup>`;
+  });
+
+  return `<div class="consumo-seccion">
+    <div class="consumo-header">
+      <div class="consumo-dot"></div>
+      <div class="consumo-title">🫖 Consumo Personal</div>
+      <div class="consumo-badge">No cuenta como venta</div>
+    </div>
+    <div class="consumo-items" id="consumo-chips">${chips}</div>
+    <div class="consumo-add-row">
+      <select class="consumo-select" id="consumo-sel">${opts}</select>
+      <input class="consumo-qty-inp" id="consumo-qty" type="number" value="1" min="1" max="99">
+      <button class="btn-consumo-add" onclick="agregarConsumo()">+ Agregar</button>
+    </div>
+  </div>`;
+}
+
+function agregarConsumo(){
+  const sel = document.getElementById('consumo-sel');
+  const qty = parseInt(document.getElementById('consumo-qty').value)||1;
+  const id = sel?.value;
+  if(!id){ toast('Selecciona un producto','warn'); return; }
+  consumoDia[id] = (consumoDia[id]||0) + Math.max(1,qty);
+  // actualizar chips sin re-renderizar todo
+  const allProds = [];
+  ['cafe','fuente','compartido'].forEach(sec=>{
+    catalogo[sec].forEach(cat=>{ cat.items.forEach(p=>{ allProds.push({id:p.id,nombre:p.nombre}); }); });
+  });
+  const container = document.getElementById('consumo-chips');
+  if(container){
+    let chips = '';
+    const entries = Object.entries(consumoDia).filter(([,q])=>q>0);
+    if(entries.length===0){
+      chips = `<span class="consumo-empty">Sin consumo registrado hoy</span>`;
+    } else {
+      entries.forEach(([cid,cqty])=>{
+        const prod = allProds.find(p=>p.id===cid);
+        const nombre = prod ? prod.nombre : cid;
+        chips += `<div class="consumo-chip">
+          <span class="chip-qty">${cqty}×</span>
+          <span>${esc(nombre)}</span>
+          <button class="chip-del" onclick="quitarConsumo('${cid}')" title="Quitar">✕</button>
+        </div>`;
+      });
+    }
+    container.innerHTML = chips;
+  }
+  // reset qty
+  const qInp = document.getElementById('consumo-qty');
+  if(qInp) qInp.value=1;
+  toast('Consumo registrado','ok');
+}
+
+function quitarConsumo(id){
+  delete consumoDia[id];
+  const container = document.getElementById('consumo-chips');
+  if(container){
+    const allProds = [];
+    ['cafe','fuente','compartido'].forEach(sec=>{
+      catalogo[sec].forEach(cat=>{ cat.items.forEach(p=>{ allProds.push({id:p.id,nombre:p.nombre}); }); });
+    });
+    const entries = Object.entries(consumoDia).filter(([,q])=>q>0);
+    if(entries.length===0){
+      container.innerHTML = `<span class="consumo-empty">Sin consumo registrado hoy</span>`;
+    } else {
+      let chips = '';
+      entries.forEach(([cid,cqty])=>{
+        const prod = allProds.find(p=>p.id===cid);
+        const nombre = prod ? prod.nombre : cid;
+        chips += `<div class="consumo-chip">
+          <span class="chip-qty">${cqty}×</span>
+          <span>${esc(nombre)}</span>
+          <button class="chip-del" onclick="quitarConsumo('${cid}')" title="Quitar">✕</button>
+        </div>`;
+      });
+      container.innerHTML = chips;
+    }
+  }
+}
+
 function cambiarQty(id, delta){
   editDia[id] = Math.max(0,(editDia[id]||0)+delta);
   const qty=editDia[id];
@@ -814,6 +1008,9 @@ async function guardarDia(){
     data[sec]={};
     todosProds(sec).forEach(p=>{ if(editDia[p.id]>0) data[sec][p.id]=editDia[p.id]; });
   });
+  // guardar consumo personal (no cuenta en totales de venta)
+  const consumoFiltrado = Object.fromEntries(Object.entries(consumoDia).filter(([,q])=>q>0));
+  if(Object.keys(consumoFiltrado).length>0) data.consumo = consumoFiltrado;
   const notas=document.getElementById('notas-dia')?.value||'';
   if(notas) data.notas=notas;
   ventas[fechaActiva]=data;
