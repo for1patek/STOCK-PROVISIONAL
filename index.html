@@ -626,10 +626,18 @@ async function sincronizarPendientes(){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// CATÁLOGO BASE
+// CATÁLOGO BASE — secciones dinámicas
+// estructura: { secciones: [ { id, nombre, emoji, color, categorias:[{cat,items:[{id,nombre,precio,activo}]}] } ] }
 // ═══════════════════════════════════════════════════════════════
-const CAT_BASE = {
-  cafe: [
+const COLORES_PRESET = [
+  {name:'Dorado',   val:'#d4a96a'}, {name:'Azul',     val:'#6ab4d4'},
+  {name:'Violeta',  val:'#9d8fd4'}, {name:'Verde',    val:'#6fcf97'},
+  {name:'Naranja',  val:'#e8a84a'}, {name:'Rosa',     val:'#d46a9d'},
+  {name:'Rojo',     val:'#e86040'}, {name:'Celeste',  val:'#6ad4c8'},
+];
+
+const CAT_BASE = { secciones: [
+  { id:'cafe', nombre:'Café', emoji:'☕', color:'#d4a96a', categorias: [
     { cat: 'Cafés', items: [
       { id:'c_espresso',  nombre:'Espresso',           precio:2000, activo:true },
       { id:'c_americano', nombre:'Americano',           precio:2000, activo:true },
@@ -647,8 +655,8 @@ const CAT_BASE = {
       { id:'p_queque',  nombre:'Queque de Zanahoria', precio:2200, activo:false },
       { id:'p_waffle',  nombre:'Waffle',              precio:3500, activo:false },
     ]},
-  ],
-  fuente: [
+  ]},
+  { id:'fuente', nombre:'Fuente', emoji:'🌭', color:'#6ab4d4', categorias: [
     { cat: 'Hand Roll', items: [
       { id:'hr_pollo',   nombre:'Hand Roll Pollo',   precio:3000, activo:true },
       { id:'hr_camaron', nombre:'Hand Roll Camarón', precio:3000, activo:true },
@@ -671,8 +679,8 @@ const CAT_BASE = {
       { id:'salchipapa',   nombre:'Salchipapa',        precio:3500, activo:true },
       { id:'nuggets',      nombre:'Papas con Nuggets', precio:3500, activo:true },
     ]},
-  ],
-  compartido: [
+  ]},
+  { id:'compartido', nombre:'Compartido', emoji:'⚡', color:'#9d8fd4', categorias: [
     { cat: 'Jugos', items: [
       { id:'j_frambuesa',  nombre:'Jugo Frambuesa',          precio:3000, activo:true },
       { id:'j_frutilla',   nombre:'Jugo Frutilla',           precio:2500, activo:true },
@@ -689,8 +697,22 @@ const CAT_BASE = {
     { cat: 'Bebidas', items: [
       { id:'bebidas', nombre:'Bebidas embotelladas', precio:2000, activo:true },
     ]},
-  ]
-};
+  ]},
+]};
+
+// ── Migrar catálogo antiguo (cafe/fuente/compartido plano) al nuevo formato ──
+function migrarCatalogo(raw){
+  if(raw && raw.secciones) return raw; // ya es nuevo formato
+  // formato antiguo: { cafe:[...], fuente:[...], compartido:[...] }
+  if(raw && (raw.cafe || raw.fuente || raw.compartido)){
+    return { secciones: [
+      { id:'cafe',       nombre:'Café',       emoji:'☕', color:'#d4a96a', categorias: raw.cafe       || [] },
+      { id:'fuente',     nombre:'Fuente',     emoji:'🌭', color:'#6ab4d4', categorias: raw.fuente     || [] },
+      { id:'compartido', nombre:'Compartido', emoji:'⚡', color:'#9d8fd4', categorias: raw.compartido || [] },
+    ]};
+  }
+  return JSON.parse(JSON.stringify(CAT_BASE));
+}
 
 // ═══════════════════════════════════════════════════════════════
 // ESTADO
@@ -738,12 +760,23 @@ function diasMes(ini){
   return Array.from({length:total},(_,i)=>`${y}-${String(m).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`);
 }
 
+// helpers para nueva estructura
+function getSecciones(){ return catalogo.secciones || []; }
+function getSeccion(sid){ return getSecciones().find(s=>s.id===sid); }
+
 function getProd(seccion, id){
-  for(const cat of catalogo[seccion]) for(const p of cat.items) if(p.id===id) return p;
+  const sec = getSeccion(seccion); if(!sec) return null;
+  for(const cat of sec.categorias) for(const p of cat.items) if(p.id===id) return p;
   return null;
 }
 function todosProds(seccion){
-  const arr=[]; for(const cat of catalogo[seccion]) arr.push(...cat.items); return arr;
+  const sec = getSeccion(seccion); if(!sec) return [];
+  const arr=[]; for(const cat of sec.categorias) arr.push(...cat.items); return arr;
+}
+function todosProdsAll(){
+  const arr=[];
+  getSecciones().forEach(s=> s.categorias.forEach(cat=> arr.push(...cat.items)));
+  return arr;
 }
 
 function totalSeccion(seccion, dia){
@@ -751,7 +784,7 @@ function totalSeccion(seccion, dia){
   return todosProds(seccion).reduce((a,p)=>a+(data[p.id]||0)*p.precio,0);
 }
 function totalDia(dia){
-  return ['cafe','fuente','compartido'].reduce((a,s)=>a+totalSeccion(s,dia),0);
+  return getSecciones().reduce((a,s)=>a+totalSeccion(s.id,dia),0);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -802,26 +835,21 @@ function render(){
 function renderDiario(){
   const esHoy = fechaActiva===hoy();
   const guardado = ventas[fechaActiva] || {};
-  // Siempre reconstruir editDia desde ventas guardadas + IDs del catálogo actual
-  // Esto garantiza que productos nuevos tengan entrada (0) y no se pierdan cantidades guardadas
+  const secciones = getSecciones();
+
+  // Reconstruir editDia
   const savedFlat = {};
-  ['cafe','fuente','compartido'].forEach(sec=>{
-    const s = guardado[sec] || {};
+  secciones.forEach(sec=>{
+    const s = guardado[sec.id] || {};
     Object.entries(s).forEach(([id,qty])=>{ if(id!=='notas') savedFlat[id]=qty; });
   });
-  // Preservar ediciones en curso si hay, sino usar guardado
   if(Object.keys(editDia).length===0){
     editDia = {...savedFlat};
   } else {
-    // Asegurarse que productos nuevos del catálogo estén presentes con 0
-    ['cafe','fuente','compartido'].forEach(sec=>{
-      todosProds(sec).forEach(p=>{ if(!(p.id in editDia)) editDia[p.id]=0; });
-    });
+    secciones.forEach(sec=>{ todosProds(sec.id).forEach(p=>{ if(!(p.id in editDia)) editDia[p.id]=0; }); });
   }
-  // Cargar consumo guardado
   if(Object.keys(consumoDia).length===0){
-    const c = guardado.consumo || {};
-    consumoDia = {...c};
+    consumoDia = {...(guardado.consumo||{})};
   }
   const notas = guardado.notas || '';
 
@@ -841,29 +869,28 @@ function renderDiario(){
 
   const filtro = busquedaDiario.toLowerCase().trim();
 
-  ['cafe','fuente','compartido'].forEach(sec=>{
-    const label = sec==='cafe'?'☕ Café':sec==='fuente'?'🌭 Fuente':'⚡ Compartido';
-    const sub = calcSubtotalEdit(sec);
-
-    // Check if this section has any matching products
-    const secTieneMatch = !filtro || catalogo[sec].some(cat=>cat.items.some(p=>p.nombre.toLowerCase().includes(filtro)));
+  secciones.forEach((sec, si)=>{
+    const sub = calcSubtotalEdit(sec.id);
+    const secTieneMatch = !filtro || sec.categorias.some(cat=>cat.items.some(p=>p.nombre.toLowerCase().includes(filtro)));
     if(filtro && !secTieneMatch) return;
 
     html += `<div class="seccion">
       <div class="sec-header">
-        <div class="sec-dot ${sec}"></div>
-        <div class="sec-title ${sec}">${label}</div>
+        <div class="sec-dot" style="background:${esc(sec.color)}"></div>
+        <div class="sec-title" style="color:${esc(sec.color)}">${esc(sec.emoji)} ${esc(sec.nombre)}</div>
         <div class="sec-subtotal">${sub>0?`<span>${pesos(sub)}</span>`:''}</div>
+        ${!filtro?`<button class="btn-cat" style="margin-left:8px" onclick="abrirModalEditarSec(${si})">✏</button>
+        <button class="btn-cat" style="color:var(--fire);border-color:var(--fire)" onclick="eliminarSec(${si})">✕</button>`:''}
       </div>`;
 
-    catalogo[sec].forEach((cat,ci)=>{
+    sec.categorias.forEach((cat,ci)=>{
       const catItems = filtro ? cat.items.filter(p=>p.nombre.toLowerCase().includes(filtro)) : cat.items;
       if(filtro && catItems.length===0) return;
 
       html += `<div class="cat-header">
         <div class="cat-label">${esc(cat.cat)}</div>
-        <button class="btn-cat" onclick="abrirModalEditarCat('${sec}',${ci})">✏ Renombrar</button>
-        <button class="btn-cat" onclick="eliminarCat('${sec}',${ci})" style="color:var(--fire);border-color:var(--fire)">✕ Eliminar</button>
+        <button class="btn-cat" onclick="abrirModalEditarCat('${sec.id}',${ci})">✏ Renombrar</button>
+        <button class="btn-cat" onclick="eliminarCat('${sec.id}',${ci})" style="color:var(--fire);border-color:var(--fire)">✕ Eliminar</button>
       </div>
         <table class="tabla">
           <thead><tr>
@@ -881,9 +908,9 @@ function renderDiario(){
         const sub = qty*p.precio;
         html += `<tr class="${p.activo?'':'inactivo'}">
           <td><input class="inp-nombre" value="${esc(p.nombre)}"
-            onchange="editNombre('${sec}','${p.id}',this.value)"></td>
+            onchange="editNombre('${sec.id}','${p.id}',this.value)"></td>
           <td><input class="inp-precio" type="number" value="${p.precio}"
-            onchange="editPrecio('${sec}','${p.id}',this.value)" oninput="editPrecio('${sec}','${p.id}',this.value)"></td>
+            onchange="editPrecio('${sec.id}','${p.id}',this.value)" oninput="editPrecio('${sec.id}','${p.id}',this.value)"></td>
           <td><div class="qty-wrap">
             <button class="qbtn minus" onclick="cambiarQty('${p.id}',-1)" ${!p.activo?'disabled':''}>−</button>
             <span class="qty-n${qty>0?' has':''}" id="qn-${p.id}">${qty}</span>
@@ -891,49 +918,42 @@ function renderDiario(){
           </div></td>
           <td class="td-sub${sub>0?' has':''}" id="qs-${p.id}">${sub>0?pesos(sub):'—'}</td>
           <td class="td-tog">
-            <button class="toggle ${p.activo?'on':'off'}" onclick="toggleActivo('${sec}','${p.id}')"></button>
+            <button class="toggle ${p.activo?'on':'off'}" onclick="toggleActivo('${sec.id}','${p.id}')"></button>
           </td>
           <td class="td-tog">
-            <button class="btn-eliminar" onclick="eliminarProd('${sec}',${ci},${pi})" title="Eliminar producto">✕</button>
+            <button class="btn-eliminar" onclick="eliminarProd('${sec.id}',${ci},${pi})" title="Eliminar producto">✕</button>
           </td>
         </tr>`;
       });
       html += `</tbody></table>`;
-      if(!filtro) html += `<button class="btn-add-prod" onclick="abrirModalNuevoProd('${sec}',${ci})">＋ Agregar producto</button>`;
+      if(!filtro) html += `<button class="btn-add-prod" onclick="abrirModalNuevoProd('${sec.id}',${ci})">＋ Agregar producto</button>`;
     });
 
-    if(!filtro) html += `<button class="btn-add-cat" onclick="abrirModalNuevaCat('${sec}')">＋ Nueva categoría</button>`;
+    if(!filtro) html += `<button class="btn-add-cat" onclick="abrirModalNuevaCat('${sec.id}')">＋ Nueva categoría</button>`;
     html += `</div>`;
   });
+
+  if(!filtro) html += `<button class="btn-add-cat" style="margin-bottom:16px" onclick="abrirModalNuevaSec()">＋ Nueva sección</button>`;
 
   // ── Consumo Personal ──
   html += renderConsumoHTML();
 
   // Caja del día
-  const tCafe = calcSubtotalEdit('cafe');
-  const tFuente = calcSubtotalEdit('fuente');
-  const tShared = calcSubtotalEdit('compartido');
-  const tTotal = tCafe+tFuente+tShared;
+  const tTotal = getSecciones().reduce((a,s)=>a+calcSubtotalEdit(s.id),0);
+  let cajaItems = getSecciones().map(s=>{
+    const t = calcSubtotalEdit(s.id);
+    return `<div class="caja-item">
+      <div class="caja-item-label">${esc(s.emoji)} ${esc(s.nombre)}</div>
+      <div class="caja-item-val" style="color:${esc(s.color)}">${pesos(t)}</div>
+    </div>`;
+  }).join('');
+  cajaItems += `<div class="caja-item">
+    <div class="caja-item-label">TOTAL DÍA</div>
+    <div class="caja-item-val total">${tTotal>0?'$'+tTotal.toLocaleString('es-CL'):'$0'}</div>
+  </div>`;
 
   html += `<div class="caja-dia">
-    <div class="caja-grid">
-      <div class="caja-item">
-        <div class="caja-item-label">☕ Café</div>
-        <div class="caja-item-val cafe">${pesos(tCafe)}</div>
-      </div>
-      <div class="caja-item">
-        <div class="caja-item-label">🌭 Fuente</div>
-        <div class="caja-item-val fuente">${pesos(tFuente)}</div>
-      </div>
-      <div class="caja-item">
-        <div class="caja-item-label">⚡ Compartido</div>
-        <div class="caja-item-val shared">${pesos(tShared)}</div>
-      </div>
-      <div class="caja-item">
-        <div class="caja-item-label">TOTAL DÍA</div>
-        <div class="caja-item-val total">${tTotal>0?'$'+tTotal.toLocaleString('es-CL'):'$0'}</div>
-      </div>
-    </div>
+    <div class="caja-grid">${cajaItems}</div>
     <div class="caja-footer">
       <textarea class="notas-input" id="notas-dia" placeholder="Notas del día (clima, eventos, observaciones...)">${esc(notas)}</textarea>
       <button class="btn-guardar" id="btn-grd" onclick="guardarDia()">Guardar</button>
@@ -964,13 +984,10 @@ function filtrarDiario(val){
 
 // ─── CONSUMO PERSONAL ────────────────────────────────────────
 function renderConsumoHTML(){
-  // Construir lista de todos los productos con sus nombres
   const allProds = [];
-  ['cafe','fuente','compartido'].forEach(sec=>{
-    catalogo[sec].forEach(cat=>{
-      cat.items.forEach(p=>{
-        if(p.activo) allProds.push({id:p.id, nombre:p.nombre, sec});
-      });
+  getSecciones().forEach(sec=>{
+    sec.categorias.forEach(cat=>{
+      cat.items.forEach(p=>{ if(p.activo) allProds.push({id:p.id, nombre:p.nombre}); });
     });
   });
 
@@ -1073,11 +1090,7 @@ function agregarConsumo(){
   const id = _consumoSelId;
   if(!id){ toast('Busca y selecciona un producto primero','warn'); return; }
   consumoDia[id] = (consumoDia[id]||0) + Math.max(1,qty);
-  // actualizar chips sin re-renderizar todo
-  const allProds = [];
-  ['cafe','fuente','compartido'].forEach(sec=>{
-    catalogo[sec].forEach(cat=>{ cat.items.forEach(p=>{ allProds.push({id:p.id,nombre:p.nombre}); }); });
-  });
+  const allProds = todosProdsAll();
   const container = document.getElementById('consumo-chips');
   if(container){
     let chips = '';
@@ -1105,10 +1118,7 @@ function quitarConsumo(id){
   delete consumoDia[id];
   const container = document.getElementById('consumo-chips');
   if(container){
-    const allProds = [];
-    ['cafe','fuente','compartido'].forEach(sec=>{
-      catalogo[sec].forEach(cat=>{ cat.items.forEach(p=>{ allProds.push({id:p.id,nombre:p.nombre}); }); });
-    });
+    const allProds = todosProdsAll();
     const entries = Object.entries(consumoDia).filter(([,q])=>q>0);
     if(entries.length===0){
       container.innerHTML = `<span class="consumo-empty">Sin consumo registrado hoy</span>`;
@@ -1131,7 +1141,7 @@ function quitarConsumo(id){
 function cambiarQty(id, delta){
   editDia[id] = Math.max(0,(editDia[id]||0)+delta);
   const qty=editDia[id];
-  const prod = ['cafe','fuente','compartido'].flatMap(s=>todosProds(s)).find(p=>p.id===id);
+  const prod = todosProdsAll().find(p=>p.id===id);
   const precio = prod ? prod.precio : 0;
   const sub=qty*precio;
   const qn=document.getElementById('qn-'+id);
@@ -1142,23 +1152,23 @@ function cambiarQty(id, delta){
 }
 
 function actualizarCaja(){
-  // solo actualiza los valores de caja sin re-renderizar todo
-  const tC=calcSubtotalEdit('cafe');
-  const tF=calcSubtotalEdit('fuente');
-  const tS=calcSubtotalEdit('compartido');
-  const tT=tC+tF+tS;
-  const vals=document.querySelectorAll('.caja-item-val');
-  if(vals[0]) vals[0].textContent=tC>0?pesos(tC):"$0";
-  if(vals[1]) vals[1].textContent=tF>0?pesos(tF):"$0";
-  if(vals[2]) vals[2].textContent=tS>0?pesos(tS):"$0";
-  if(vals[3]) vals[3].textContent='$'+tT.toLocaleString('es-CL');
+  const secciones = getSecciones();
+  let tTotal = 0;
+  const vals = document.querySelectorAll('.caja-item-val');
+  secciones.forEach((sec,i)=>{
+    const t = calcSubtotalEdit(sec.id);
+    tTotal += t;
+    if(vals[i]) vals[i].textContent = t>0?pesos(t):'—';
+  });
+  // last item is TOTAL
+  if(vals[secciones.length]) vals[secciones.length].textContent = '$'+tTotal.toLocaleString('es-CL');
 }
 
 async function guardarDia(){
   const data={};
-  ['cafe','fuente','compartido'].forEach(sec=>{
-    data[sec]={};
-    todosProds(sec).forEach(p=>{ if(editDia[p.id]>0) data[sec][p.id]=editDia[p.id]; });
+  getSecciones().forEach(sec=>{
+    data[sec.id]={};
+    todosProds(sec.id).forEach(p=>{ if(editDia[p.id]>0) data[sec.id][p.id]=editDia[p.id]; });
   });
   // guardar consumo personal (no cuenta en totales de venta)
   const consumoFiltrado = Object.fromEntries(Object.entries(consumoDia).filter(([,q])=>q>0));
@@ -1201,22 +1211,56 @@ function toggleActivo(sec,id){
 }
 
 // ─── SEMANAL ─────────────────────────────────────────────────
+function abrirModalNota(fecha){
+  const nota = ventas[fecha]?.notas || '';
+  const f = parseFecha(fecha);
+  const titulo = `${DIAS[f.getDay()]} ${f.getDate()} ${MESES[f.getMonth()]}`;
+  const total = totalDia(fecha);
+  const secciones = getSecciones();
+
+  let detalleHTML = '';
+  secciones.forEach(sec=>{
+    const t = totalSeccion(sec.id, fecha);
+    if(t>0) detalleHTML += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:.82rem;">
+      <span style="color:var(--muted)">${esc(sec.emoji)} ${esc(sec.nombre)}</span>
+      <span style="font-family:'DM Mono',monospace;color:${esc(sec.color)}">${pesos(t)}</span>
+    </div>`;
+  });
+
+  abrirModalCat(`📅 ${titulo}`,
+    `<div style="margin-bottom:14px;">
+      ${detalleHTML}
+      <div style="display:flex;justify-content:space-between;padding:8px 0 0;border-top:1px solid var(--border);margin-top:6px;">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:.9rem;color:var(--muted);letter-spacing:.08em">TOTAL DÍA</span>
+        <span style="font-family:'DM Mono',monospace;color:var(--ok);font-size:1rem">${total>0?'$'+total.toLocaleString('es-CL'):'—'}</span>
+      </div>
+    </div>
+    ${nota?`<div class="field-group">
+      <div class="field-label">Notas</div>
+      <div style="background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-size:.84rem;color:var(--muted);white-space:pre-wrap;line-height:1.5">${esc(nota)}</div>
+    </div>`:`<div style="color:var(--muted2);font-size:.8rem;font-style:italic;text-align:center;padding:8px 0">Sin notas para este día</div>`}`,
+    null // no hay confirm en este modal — solo info
+  );
+  // Ocultar botón confirmar ya que es solo lectura
+  setTimeout(()=>{
+    const btn = document.querySelector('#overlay-cat .modal-cat-footer button:last-child');
+    if(btn) btn.style.display='none';
+  },10);
+}
+
 function renderSemanal(){
   const ini = inicioSemana(semOff);
   const fin = sumarDias(ini,6);
   const dias = diasSemana(ini);
   const h = hoy();
+  const secciones = getSecciones();
 
-  // ── Totales por día ──
   let granTotal = 0;
   const totDias = dias.map(d=>{
-    const t = ['cafe','fuente','compartido'].reduce((a,s)=>a+totalSeccion(s,d),0);
+    const t = secciones.reduce((a,s)=>a+totalSeccion(s.id,d),0);
     granTotal += t;
     return t;
   });
-  const tCafe    = dias.reduce((a,d)=>a+totalSeccion('cafe',d),0);
-  const tFuente  = dias.reduce((a,d)=>a+totalSeccion('fuente',d),0);
-  const tShared  = dias.reduce((a,d)=>a+totalSeccion('compartido',d),0);
 
   let html = `<div class="fecha-bar">
     <button class="btn-nav" onclick="navSem(-1)">‹</button>
@@ -1226,17 +1270,20 @@ function renderSemanal(){
   </div>`;
 
   // ── Barra totales semana ──
-  html += `<div class="sem-total-bar">
-    <div class="sem-total-item"><div class="sem-total-label">☕ Café</div><div class="sem-total-val cafe">${pesos(tCafe)}</div></div>
-    <div class="sem-sep"></div>
-    <div class="sem-total-item"><div class="sem-total-label">🌭 Fuente</div><div class="sem-total-val fuente">${pesos(tFuente)}</div></div>
-    <div class="sem-sep"></div>
-    <div class="sem-total-item"><div class="sem-total-label">⚡ Compartido</div><div class="sem-total-val shared">${pesos(tShared)}</div></div>
-    <div class="sem-sep"></div>
+  html += `<div class="sem-total-bar">`;
+  secciones.forEach((sec,i)=>{
+    const t = dias.reduce((a,d)=>a+totalSeccion(sec.id,d),0);
+    html += `${i>0?'<div class="sem-sep"></div>':''}
+    <div class="sem-total-item">
+      <div class="sem-total-label">${esc(sec.emoji)} ${esc(sec.nombre)}</div>
+      <div class="sem-total-val" style="color:${esc(sec.color)}">${pesos(t)}</div>
+    </div>`;
+  });
+  html += `<div class="sem-sep"></div>
     <div class="sem-total-item"><div class="sem-total-label">Total semana</div><div class="sem-total-val ok">${granTotal>0?'$'+granTotal.toLocaleString('es-CL'):'$0'}</div></div>
   </div>`;
 
-  // ── Cards por día ──
+  // ── Cards por día (clickeables) ──
   html += `<div class="sem-dias-grid">`;
   dias.forEach((d,i)=>{
     const f = parseFecha(d);
@@ -1244,63 +1291,53 @@ function renderSemanal(){
     const t = totDias[i];
     const sinDatos = !ventas[d] || Object.keys(ventas[d]).length===0;
     const nota = ventas[d]?.notas || '';
-    const tC = totalSeccion('cafe',d);
-    const tF = totalSeccion('fuente',d);
-    const tS = totalSeccion('compartido',d);
-    html += `<div class="sem-dia-card${esH?' hoy':''}${sinDatos?' sin-datos':''}">
+    html += `<div class="sem-dia-card${esH?' hoy':''}${sinDatos?' sin-datos':''}" onclick="abrirModalNota('${d}')" title="Ver detalle">
       <div class="sem-dia-card-head${esH?' hoy':''}">
         <span>${DIAS[f.getDay()]}</span><span>${f.getDate()}</span>
       </div>
       <div class="sem-dia-total${t===0?' cero':''}">${t>0?'$'+t.toLocaleString('es-CL'):'—'}</div>
       <div class="sem-dia-secs">
-        ${tC>0?`<div class="sem-dia-sec">☕ <span>${pesos(tC)}</span></div>`:''}
-        ${tF>0?`<div class="sem-dia-sec">🌭 <span>${pesos(tF)}</span></div>`:''}
-        ${tS>0?`<div class="sem-dia-sec">⚡ <span>${pesos(tS)}</span></div>`:''}
+        ${secciones.map(sec=>{ const ts=totalSeccion(sec.id,d); return ts>0?`<div class="sem-dia-sec">${esc(sec.emoji)} <span>${pesos(ts)}</span></div>`:''; }).join('')}
       </div>
       ${nota?`<div class="sem-dia-nota" title="${esc(nota)}">${esc(nota.substring(0,30))}${nota.length>30?'…':''}</div>`:''}
     </div>`;
   });
   html += `</div>`;
 
-  // ── Tabla detalle productos ──
-  html += `<div class="sem-tabla-wrap"><table class="tabla-res"><thead><tr>
-    <th>Producto</th>`;
+  // ── Tabla detalle ──
+  html += `<div class="sem-tabla-wrap"><table class="tabla-res"><thead><tr><th>Producto</th>`;
   dias.forEach(d=>{
     const f=parseFecha(d); const esH=d===h;
     html+=`<th class="${esH?'hoy-col':''}" style="min-width:52px">${DIAS[f.getDay()]}<br><span style="font-weight:400;font-size:.65rem">${f.getDate()}</span></th>`;
   });
   html+=`<th>Uds.</th><th>Total</th></tr></thead><tbody>`;
 
-  ['cafe','fuente','compartido'].forEach(sec=>{
-    const label=sec==='cafe'?'☕ CAFÉ':sec==='fuente'?'🌭 FUENTE':'⚡ COMPARTIDO';
-    // only show section if has any sales
-    const secTieneVentas = dias.some(d=>totalSeccion(sec,d)>0);
-    html+=`<tr class="cat-row"><td colspan="${10}">${label}</td></tr>`;
-    catalogo[sec].forEach(cat=>{
-      let catTieneVentas = dias.some(d=>cat.items.some(p=>(ventas[d]?.[sec]?.[p.id]||0)>0));
-      if(!catTieneVentas) return;
-      html+=`<tr class="cat-row" style="opacity:.5"><td colspan="${10}" style="padding-left:20px">${cat.cat}</td></tr>`;
+  secciones.forEach(sec=>{
+    const secTieneVentas = dias.some(d=>totalSeccion(sec.id,d)>0);
+    if(!secTieneVentas) return;
+    html+=`<tr class="cat-row"><td colspan="10" style="color:${esc(sec.color)}">${esc(sec.emoji)} ${esc(sec.nombre).toUpperCase()}</td></tr>`;
+    sec.categorias.forEach(cat=>{
+      let catTiene = dias.some(d=>cat.items.some(p=>(ventas[d]?.[sec.id]?.[p.id]||0)>0));
+      if(!catTiene) return;
+      html+=`<tr class="cat-row" style="opacity:.5"><td colspan="10" style="padding-left:20px">${cat.cat}</td></tr>`;
       cat.items.forEach(p=>{
-        const totalUds = dias.reduce((a,d)=>a+(ventas[d]?.[sec]?.[p.id]||0),0);
+        const totalUds = dias.reduce((a,d)=>a+(ventas[d]?.[sec.id]?.[p.id]||0),0);
         if(totalUds===0) return;
         let totP=0;
         html+=`<tr><td>${esc(p.nombre)}</td>`;
-        dias.forEach((d,i)=>{
-          const qty=(ventas[d]?.[sec]?.[p.id])||0;
-          const sub=qty*p.precio;
-          totP+=sub;
+        dias.forEach(d=>{
+          const qty=(ventas[d]?.[sec.id]?.[p.id])||0;
+          totP+=qty*p.precio;
           html+=`<td class="${qty>0?'hi':''}">${qty>0?qty:'—'}</td>`;
         });
-        html+=`<td class="hi" style="white-space:nowrap">${totalUds} ud.</td>`;
-        html+=`<td class="hi">${pesos(totP)}</td></tr>`;
+        html+=`<td class="hi" style="white-space:nowrap">${totalUds} ud.</td><td class="hi">${pesos(totP)}</td></tr>`;
       });
     });
   });
 
-  // Fila notas
   const algunaNota = dias.some(d=>ventas[d]?.notas);
   if(algunaNota){
-    html+=`<tr class="cat-row"><td colspan="${10}">NOTAS</td></tr>`;
+    html+=`<tr class="cat-row"><td colspan="10">NOTAS</td></tr>`;
     html+=`<tr><td style="color:var(--muted);font-size:.75rem;font-style:italic">Notas del día</td>`;
     dias.forEach(d=>{
       const n=ventas[d]?.notas||'';
@@ -1309,7 +1346,6 @@ function renderSemanal(){
     html+=`<td>—</td><td>—</td></tr>`;
   }
 
-  // Fila total
   html+=`<tr class="total-row"><td>TOTAL DÍA</td>`;
   dias.forEach((d,i)=>{
     const esH=d===h;
