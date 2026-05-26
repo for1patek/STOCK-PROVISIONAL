@@ -236,27 +236,82 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,12,12,.95);backdrop-
 
 <script>
 // ══════════════════════════════════════════════
+//  SUPABASE
+// ══════════════════════════════════════════════
+const SB_URL = 'https://exljwmibglouwrzlyiip.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4bGp3bWliZ2xvdXdyemx5aWlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNTA5NTksImV4cCI6MjA5NDcyNjk1OX0.fN4abGDSUaZGb9Eisn8JgtGF0_E9exETJWgaMStZlEU';
+const SB_HDR = {
+  'Content-Type':'application/json',
+  'apikey': SB_KEY,
+  'Authorization': `Bearer ${SB_KEY}`,
+  'Prefer': 'resolution=merge-duplicates'
+};
+
+async function sbGet(tabla) {
+  const r = await fetch(`${SB_URL}/rest/v1/${tabla}?id=eq.main&select=data`, {headers:SB_HDR});
+  const d = await r.json();
+  return d[0]?.data || null;
+}
+async function sbSet(tabla, data) {
+  await fetch(`${SB_URL}/rest/v1/${tabla}`, {
+    method:'POST', headers:SB_HDR,
+    body: JSON.stringify({id:'main', data, updated_at: new Date().toISOString()})
+  });
+}
+
+// ══════════════════════════════════════════════
 //  ESTADO GLOBAL
 // ══════════════════════════════════════════════
 const COLORES = ['#d4a96a','#6ab4d4','#9d8fd4','#6fcf97','#e8a84a','#e86040','#6ad4c8','#d46a9d','#a8d46a','#6a7fd4','#d4886a','#6ab4d4'];
 
-// secciones: [{id, label, emoji, color, bloquesSugeridos:[]}]
-// recetas:   [{id, secId, cat, nombre, precio, notas, bloques:[{titulo, ings:[{nombre,precioKg,gramos,costoFijo}]}]}]
-let secciones = JSON.parse(localStorage.getItem('orb_secs') || 'null') || [
+const SECS_DEFAULT = [
   {id:'cafe',    label:'Café',       emoji:'☕', color:'#d4a96a', bloquesSugeridos:['Cafés','Pastelería','Insumos base']},
   {id:'fuente',  label:'Fuente',     emoji:'🌭', color:'#6ab4d4', bloquesSugeridos:['Proteína','Pan','Salsas & Aderezos','Papas & Extras','Agregados','Insumos']},
   {id:'compart', label:'Compartido', emoji:'⚡', color:'#9d8fd4', bloquesSugeridos:['Jugos','Bebidas','Insumos']},
 ];
-let recetas = JSON.parse(localStorage.getItem('orb_recs') || '[]');
-let activa = null; // id receta activa
-let secEditId = null; // sección en edición
+
+// secciones: [{id, label, emoji, color, bloquesSugeridos:[]}]
+// recetas:   [{id, secId, cat, nombre, precio, notas, bloques:[{titulo, ings:[{nombre,precioKg,gramos,costoFijo}]}]}]
+let secciones = [...SECS_DEFAULT];
+let recetas   = [];
+let activa    = null;
+let secEditId = null;
+let online    = navigator.onLine;
+let pending   = JSON.parse(localStorage.getItem('orb_pending') || '{}');
+
+function setPending(k)   { pending[k]=true;  localStorage.setItem('orb_pending', JSON.stringify(pending)); }
+function clearPending(k) { delete pending[k]; localStorage.setItem('orb_pending', JSON.stringify(pending)); }
+
+window.addEventListener('online',  () => { online=true;  sincPendientes(); toast('Conexión restaurada','ok'); });
+window.addEventListener('offline', () => { online=false; toast('Sin conexión — guardando local','warn'); });
 
 // ══════════════════════════════════════════════
-//  PERSISTENCIA
+//  PERSISTENCIA (Supabase + localStorage fallback)
 // ══════════════════════════════════════════════
-function save() {
+async function save() {
+  // siempre guardar local primero (instantáneo)
   localStorage.setItem('orb_secs', JSON.stringify(secciones));
   localStorage.setItem('orb_recs', JSON.stringify(recetas));
+  if (online) {
+    try {
+      await Promise.all([sbSet('secciones', secciones), sbSet('recetas', recetas)]);
+      clearPending('secs'); clearPending('recs');
+    } catch(e) {
+      setPending('secs'); setPending('recs');
+      toast('Sin conexión — cambio guardado local','warn');
+    }
+  } else {
+    setPending('secs'); setPending('recs');
+  }
+}
+
+async function sincPendientes() {
+  if (!Object.keys(pending).length) return;
+  try {
+    await Promise.all([sbSet('secciones', secciones), sbSet('recetas', recetas)]);
+    clearPending('secs'); clearPending('recs');
+    toast('Cambios sincronizados','ok');
+  } catch(e) { /* reintentará en la próxima conexión */ }
 }
 
 // ══════════════════════════════════════════════
@@ -778,8 +833,42 @@ function toast(msg,tipo='ok'){
 // ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
-renderSB();
-if(recetas.length>0) verRec(recetas[0].id);
+async function init() {
+  document.getElementById('main').innerHTML=`
+    <div class="empty">
+      <div class="empty-icon" style="animation:spin 1.2s linear infinite">⏳</div>
+      <h2>Cargando recetas…</h2>
+    </div>`;
+  if(online){
+    try{
+      const [secsR,recsR]=await Promise.all([sbGet('secciones'),sbGet('recetas')]);
+      if(secsR){secciones=secsR;localStorage.setItem('orb_secs',JSON.stringify(secciones));}
+      if(recsR){recetas=recsR;localStorage.setItem('orb_recs',JSON.stringify(recetas));}
+      await sincPendientes();
+    }catch(e){
+      const ls=localStorage.getItem('orb_secs'),lr=localStorage.getItem('orb_recs');
+      if(ls)secciones=JSON.parse(ls); if(lr)recetas=JSON.parse(lr);
+      toast('Error de conexión — usando datos locales','warn');
+    }
+  }else{
+    const ls=localStorage.getItem('orb_secs'),lr=localStorage.getItem('orb_recs');
+    if(ls)secciones=JSON.parse(ls); if(lr)recetas=JSON.parse(lr);
+    toast('Sin conexión — datos locales','warn');
+  }
+  renderSB();
+  if(recetas.length>0) verRec(recetas[0].id);
+  else document.getElementById('main').innerHTML=`
+    <div class="empty" id="empty">
+      <div class="empty-icon">📋</div>
+      <h2>Sin recetas aún</h2>
+      <p style="font-size:.79rem;max-width:260px;line-height:1.6;color:var(--muted2)">Crea tu primera receta o agrega una sección.</p>
+      <button class="btn primary" onclick="mostrarForm()">＋ Nueva receta</button>
+    </div>`;
+}
+const _s=document.createElement('style');
+_s.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(_s);
+init();
 </script>
 </body>
 </html>
