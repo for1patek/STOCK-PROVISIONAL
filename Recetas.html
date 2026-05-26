@@ -6,18 +6,10 @@
 <title>Órbita · Recetas</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0c0c0c;--s1:#161616;--s2:#1e1e1e;--s3:#262626;
-  --border:#2c2c2c;--border2:#383838;
-  --text:#ece8e1;--muted:#7a7570;--muted2:#4a4642;
-  --gold:#d4a96a;--teal:#6ab4d4;--purple:#9d8fd4;
-  --ok:#6fcf97;--warn:#e8a84a;--fire:#e86040;--r:10px;
-}
+:root{--bg:#0c0c0c;--s1:#161616;--s2:#1e1e1e;--s3:#262626;--border:#2c2c2c;--border2:#383838;--text:#ece8e1;--muted:#7a7570;--muted2:#4a4642;--gold:#d4a96a;--teal:#6ab4d4;--purple:#9d8fd4;--ok:#6fcf97;--warn:#e8a84a;--fire:#e86040;--r:10px}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh}
-
-/* HEADER */
 header{position:sticky;top:0;z-index:100;background:rgba(12,12,12,.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:13px 20px}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:.1em}
 .logo em{color:var(--gold);font-style:normal}
@@ -30,16 +22,12 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,12,12,.95);backdrop-
 .btn.danger{border-color:rgba(232,96,64,.4);color:var(--fire)}
 .btn.danger:hover{background:rgba(232,96,64,.1)}
 .btn.sm{padding:4px 10px;font-size:.65rem;border-radius:14px}
-
-/* LAYOUT */
 .layout{display:grid;grid-template-columns:268px 1fr;min-height:calc(100vh - 54px)}
-
-/* SIDEBAR */
 .sidebar{border-right:1px solid var(--border);position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto;background:var(--s1);display:flex;flex-direction:column}
 .sb-body{flex:1;overflow-y:auto;padding:10px 0}
 .sb-footer{border-top:1px solid var(--border);padding:12px 16px}
-.sb-sec{margin-bottom:2px}
-.sb-sec-hdr{display:flex;align-items:center;gap:7px;padding:8px 16px;cursor:pointer;transition:background .12s;user-select:none;border-radius:0}
+.sb-div{height:1px;background:var(--border);margin:8px 16px}
+.sb-sec-hdr{display:flex;align-items:center;gap:7px;padding:8px 16px;cursor:pointer;transition:background .12s;user-select:none}
 .sb-sec-hdr:hover{background:var(--s2)}
 .sec-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .sec-lbl{font-family:'Bebas Neue',sans-serif;font-size:.88rem;letter-spacing:.1em;flex:1}
@@ -54,15 +42,10 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,12,12,.95);backdrop-
 .sb-item.active .im{color:var(--ok)}
 .sb-add{padding:5px 16px 5px 30px;font-size:.7rem;color:var(--muted2);cursor:pointer;transition:color .12s;display:flex;align-items:center;gap:4px}
 .sb-add:hover{color:var(--ok)}
-.sb-div{height:1px;background:var(--border);margin:8px 16px}
-
-/* MAIN */
 .main{padding:28px 32px 80px;max-width:880px}
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 32px;color:var(--muted);text-align:center;gap:14px;height:60vh}
 .empty-icon{font-size:2.5rem;opacity:.25}
 .empty h2{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.1em;color:var(--muted);font-weight:400}
-
-/* RECETA VIEW */
 .rec-hdr{display:flex;align-items:flex-start;gap:14px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
 .rec-badge{padding:3px 11px;border-radius:20px;font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;border:1px solid;margin-bottom:8px;display:inline-flex;align-items:center;gap:5px}
 .rec-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.06em;line-height:1;margin-bottom:4px}
@@ -71,19 +54,13 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,12,12,.95);backdrop-
 .meta-item{display:flex;flex-direction:column;gap:2px}
 .meta-lbl{font-size:.56rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2)}
 .meta-val{font-family:'DM Mono',monospace;font-size:.95rem;font-weight:500}
-.meta-val.ok{color:var(--ok)}
-.meta-val.warn{color:var(--warn)}
-.meta-val.fire{color:var(--fire)}
+.meta-val.ok{color:var(--ok)}.meta-val.warn{color:var(--warn)}.meta-val.fire{color:var(--fire)}
 .meta-sep{width:1px;height:32px;background:var(--border);flex-shrink:0}
-
-/* BLOQUES */
 .bloque{margin-bottom:16px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
 .blq-hdr{display:flex;align-items:center;gap:7px;padding:10px 14px;background:var(--s2);border-bottom:1px solid var(--border)}
 .blq-titulo{font-family:'Bebas Neue',sans-serif;font-size:.88rem;letter-spacing:.1em;color:var(--muted);flex:1}
-.blq-sub{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--muted2);margin-left:auto}
+.blq-sub{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--muted2)}
 .blq-sub span{color:var(--text)}
-
-/* TABLA INGREDIENTES — 5 columnas: nombre | $/kg | gramos | costo fijo | costo calc | del */
 .ing-grid{display:grid;grid-template-columns:1fr 88px 72px 88px 80px 30px;align-items:center;gap:6px;padding:9px 14px;border-bottom:1px solid var(--border);transition:background .1s}
 .ing-grid:last-child{border-bottom:none}
 .ing-grid:hover{background:var(--s2)}
@@ -100,25 +77,17 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,12,12,.95);backdrop-
 .bdel:hover{color:var(--fire);border-color:var(--fire);background:rgba(232,96,64,.08)}
 .add-ing-btn{width:100%;padding:8px;border:none;border-top:1px dashed var(--border);background:none;color:var(--muted2);font-size:.7rem;cursor:pointer;transition:color .12s;display:flex;align-items:center;justify-content:center;gap:5px}
 .add-ing-btn:hover{color:var(--ok)}
-
-/* RESUMEN CARDS */
 .res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
 .res-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:13px 15px}
 .res-card-lbl{font-size:.56rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);margin-bottom:5px}
 .res-card-val{font-family:'DM Mono',monospace;font-size:1.05rem;font-weight:500}
-.res-card-val.ok{color:var(--ok)}
-.res-card-val.warn{color:var(--warn)}
-.res-card-val.fire{color:var(--fire)}
+.res-card-val.ok{color:var(--ok)}.res-card-val.warn{color:var(--warn)}.res-card-val.fire{color:var(--fire)}
 .mbar{margin-top:7px;height:3px;background:var(--border2);border-radius:2px;overflow:hidden}
 .mbar-fill{height:100%;border-radius:2px;transition:width .4s ease}
-
-/* NOTAS */
 .notas-wrap{margin-bottom:18px}
 .notas-inp{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.8rem;outline:none;resize:none;height:60px;transition:border-color .15s,color .15s}
 .notas-inp:focus{border-color:var(--border2);color:var(--text)}
 .notas-inp::placeholder{color:var(--muted2)}
-
-/* FORM NUEVA */
 .form-nueva{background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:22px;margin-bottom:20px}
 .frow{display:grid;gap:10px;margin-bottom:12px}
 .frow.c2{grid-template-columns:1fr 1fr}
@@ -132,14 +101,10 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,12,12,.95);backdrop-
 .ff textarea:focus{color:var(--text)}
 .sug-box{background:rgba(212,169,106,.07);border:1px solid rgba(212,169,106,.2);border-radius:8px;padding:11px 14px;margin-top:12px;font-size:.76rem;color:var(--gold);line-height:1.7}
 .sug-box strong{font-family:'DM Mono',monospace;font-size:.85rem}
-
-/* FORM BLOQUES */
 .fb-bloque{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px}
 .fb-blq-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .fb-blq-title-inp{flex:1;background:var(--s3);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.08em;outline:none}
 .fb-blq-title-inp:focus{border-color:var(--muted)}
-
-/* MODAL */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px}
 .overlay.hidden{display:none}
 .modal{background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:22px;max-width:400px;width:100%}
@@ -148,32 +113,26 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,12,12,.95);backdrop-
 .modal-btns{display:flex;gap:8px;justify-content:flex-end}
 .modal input,.modal select{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:9px 11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.86rem;outline:none;margin-bottom:10px}
 .modal input:focus,.modal select:focus{border-color:var(--muted)}
-
-/* TOAST */
 #toast{position:fixed;bottom:20px;right:20px;z-index:500;padding:9px 16px;border-radius:8px;font-weight:600;font-size:.76rem;opacity:0;transform:translateY(8px);transition:all .22s;pointer-events:none}
 #toast.show{opacity:1;transform:translateY(0)}
 #toast.ok{background:var(--ok);color:#0c0c0c}
 #toast.warn{background:var(--warn);color:#0c0c0c}
 #toast.err{background:var(--fire);color:#fff}
-
-/* COLOR SWATCHES */
 .swatches{display:flex;flex-wrap:wrap;gap:7px;margin-top:5px}
 .swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .12s,border-color .12s;flex-shrink:0}
 .swatch:hover{transform:scale(1.15)}
 .swatch.sel{border-color:var(--text)}
-
+@keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:680px){
   .layout{grid-template-columns:1fr}
   .sidebar{position:relative;top:0;height:auto;max-height:260px}
   .main{padding:16px 14px 80px}
   .res-grid{grid-template-columns:1fr 1fr}
-  .ing-grid{grid-template-columns:1fr 74px 64px 74px 68px 26px}
   .frow.c4{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
 <body>
-
 <header>
   <div class="logo">ÓRBIT<em>A</em><small>RECETAS</small></div>
   <div class="hright">
@@ -183,7 +142,6 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,12,12,.95);backdrop-
     <button class="btn primary" onclick="mostrarForm()">＋ Nueva receta</button>
   </div>
 </header>
-
 <div class="layout">
   <aside class="sidebar">
     <div class="sb-body" id="sb-body"></div>
@@ -191,21 +149,12 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,12,12,.95);backdrop-
       <button class="btn" style="width:100%;justify-content:center" onclick="abrirModalSec()">＋ Nueva sección</button>
     </div>
   </aside>
-  <main class="main" id="main">
-    <div class="empty" id="empty">
-      <div class="empty-icon">📋</div>
-      <h2>Sin recetas aún</h2>
-      <p style="font-size:.79rem;max-width:260px;line-height:1.6;color:var(--muted2)">Crea tu primera receta o agrega una sección personalizada.</p>
-      <button class="btn primary" onclick="mostrarForm()">＋ Nueva receta</button>
-    </div>
-  </main>
+  <main class="main" id="main"></main>
 </div>
-
-<!-- MODAL SECCIÓN -->
 <div class="overlay hidden" id="ov-sec">
   <div class="modal">
     <h3 id="sec-modal-titulo">Nueva sección</h3>
-    <p style="margin-bottom:12px">Las secciones agrupan recetas por tipo de producto (Café, Fuente, Bebidas, etc.)</p>
+    <p>Las secciones agrupan recetas por tipo de producto.</p>
     <label style="font-size:.6rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Nombre</label>
     <input id="sec-nombre" placeholder="Ej: Menú del Día">
     <label style="font-size:.6rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Emoji</label>
@@ -219,11 +168,9 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,12,12,.95);backdrop-
     </div>
   </div>
 </div>
-
-<!-- MODAL CONFIRMAR ELIMINAR -->
 <div class="overlay hidden" id="ov-confirm">
   <div class="modal">
-    <h3 id="conf-titulo">¿Eliminar?</h3>
+    <h3 id="conf-titulo">Confirmar</h3>
     <p id="conf-texto"></p>
     <div class="modal-btns">
       <button class="btn" onclick="cerrarOv('ov-confirm')">Cancelar</button>
@@ -231,498 +178,410 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,12,12,.95);backdrop-
     </div>
   </div>
 </div>
-
 <div id="toast"></div>
-
 <script>
-// ══════════════════════════════════════════════
-//  SUPABASE
-// ══════════════════════════════════════════════
-const SB_URL = 'https://exljwmibglouwrzlyiip.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4bGp3bWliZ2xvdXdyemx5aWlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNTA5NTksImV4cCI6MjA5NDcyNjk1OX0.fN4abGDSUaZGb9Eisn8JgtGF0_E9exETJWgaMStZlEU';
-const SB_HDR = {
-  'Content-Type':'application/json',
-  'apikey': SB_KEY,
-  'Authorization': `Bearer ${SB_KEY}`,
-  'Prefer': 'resolution=merge-duplicates'
-};
+// ── SUPABASE ──
+var SB_URL = 'https://exljwmibglouwrzlyiip.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4bGp3bWliZ2xvdXdyemx5aWlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNTA5NTksImV4cCI6MjA5NDcyNjk1OX0.fN4abGDSUaZGb9Eisn8JgtGF0_E9exETJWgaMStZlEU';
+var SB_HDR = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'resolution=merge-duplicates'};
 
-async function sbGet(tabla) {
-  const r = await fetch(`${SB_URL}/rest/v1/${tabla}?id=eq.main&select=data`, {headers:SB_HDR});
-  const d = await r.json();
-  return d[0]?.data || null;
+function sbGet(tabla) {
+  return fetch(SB_URL+'/rest/v1/'+tabla+'?id=eq.main&select=data',{headers:SB_HDR})
+    .then(function(r){return r.json();})
+    .then(function(d){return d[0]?d[0].data:null;});
 }
-async function sbSet(tabla, data) {
-  await fetch(`${SB_URL}/rest/v1/${tabla}`, {
+function sbSet(tabla, data) {
+  return fetch(SB_URL+'/rest/v1/'+tabla, {
     method:'POST', headers:SB_HDR,
-    body: JSON.stringify({id:'main', data, updated_at: new Date().toISOString()})
+    body: JSON.stringify({id:'main', data:data, updated_at:new Date().toISOString()})
   });
 }
 
-// ══════════════════════════════════════════════
-//  ESTADO GLOBAL
-// ══════════════════════════════════════════════
-const COLORES = ['#d4a96a','#6ab4d4','#9d8fd4','#6fcf97','#e8a84a','#e86040','#6ad4c8','#d46a9d','#a8d46a','#6a7fd4','#d4886a','#6ab4d4'];
-
-const SECS_DEFAULT = [
-  {id:'cafe',    label:'Café',       emoji:'☕', color:'#d4a96a', bloquesSugeridos:['Cafés','Pastelería','Insumos base']},
-  {id:'fuente',  label:'Fuente',     emoji:'🌭', color:'#6ab4d4', bloquesSugeridos:['Proteína','Pan','Salsas & Aderezos','Papas & Extras','Agregados','Insumos']},
-  {id:'compart', label:'Compartido', emoji:'⚡', color:'#9d8fd4', bloquesSugeridos:['Jugos','Bebidas','Insumos']},
+// ── ESTADO ──
+var SECS_DEFAULT = [
+  {id:'cafe',    label:'Café',       emoji:'☕', color:'#d4a96a', bs:['Cafés','Pastelería','Insumos base']},
+  {id:'fuente',  label:'Fuente',     emoji:'🌭', color:'#6ab4d4', bs:['Proteína','Pan','Salsas','Papas & Extras','Agregados','Insumos']},
+  {id:'compart', label:'Compartido', emoji:'⚡', color:'#9d8fd4', bs:['Jugos','Bebidas','Insumos']}
 ];
+var SWATCHES = ['#d4a96a','#6ab4d4','#9d8fd4','#6fcf97','#e8a84a','#e86040','#6ad4c8','#d46a9d','#a8d46a','#6a7fd4','#d4d46a','#d4886a'];
+var secciones = [];
+var recetas   = [];
+var activa    = null;
+var secEditId = null;
+var online    = navigator.onLine;
+var pending   = {};
+try { pending = JSON.parse(localStorage.getItem('orb_pending')||'{}'); } catch(e){}
 
-// secciones: [{id, label, emoji, color, bloquesSugeridos:[]}]
-// recetas:   [{id, secId, cat, nombre, precio, notas, bloques:[{titulo, ings:[{nombre,precioKg,gramos,costoFijo}]}]}]
-let secciones = [...SECS_DEFAULT];
-let recetas   = [];
-let activa    = null;
-let secEditId = null;
-let online    = navigator.onLine;
-let pending   = JSON.parse(localStorage.getItem('orb_pending') || '{}');
+window.addEventListener('online',  function(){ online=true;  sincPendientes(); toast('Conexión restaurada','ok'); });
+window.addEventListener('offline', function(){ online=false; toast('Sin conexión — guardando local','warn'); });
 
-function setPending(k)   { pending[k]=true;  localStorage.setItem('orb_pending', JSON.stringify(pending)); }
-function clearPending(k) { delete pending[k]; localStorage.setItem('orb_pending', JSON.stringify(pending)); }
-
-window.addEventListener('online',  () => { online=true;  sincPendientes(); toast('Conexión restaurada','ok'); });
-window.addEventListener('offline', () => { online=false; toast('Sin conexión — guardando local','warn'); });
-
-// ══════════════════════════════════════════════
-//  PERSISTENCIA (Supabase + localStorage fallback)
-// ══════════════════════════════════════════════
-async function save() {
-  // siempre guardar local primero (instantáneo)
-  localStorage.setItem('orb_secs', JSON.stringify(secciones));
-  localStorage.setItem('orb_recs', JSON.stringify(recetas));
-  if (online) {
-    try {
-      await Promise.all([sbSet('secciones', secciones), sbSet('recetas', recetas)]);
-      clearPending('secs'); clearPending('recs');
-    } catch(e) {
-      setPending('secs'); setPending('recs');
-      toast('Sin conexión — cambio guardado local','warn');
-    }
-  } else {
-    setPending('secs'); setPending('recs');
-  }
-}
-
-async function sincPendientes() {
-  if (!Object.keys(pending).length) return;
-  try {
-    await Promise.all([sbSet('secciones', secciones), sbSet('recetas', recetas)]);
-    clearPending('secs'); clearPending('recs');
-    toast('Cambios sincronizados','ok');
-  } catch(e) { /* reintentará en la próxima conexión */ }
-}
-
-// ══════════════════════════════════════════════
-//  UTILS
-// ══════════════════════════════════════════════
+// ── UTILS ──
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function fmt(n){ return n>0 ? '$'+Math.round(n).toLocaleString('es-CL') : '—'; }
-function secDe(id){ return secciones.find(s=>s.id===id); }
-function recDe(id){ return recetas.find(r=>r.id===id); }
+function secDe(id){ for(var i=0;i<secciones.length;i++) if(secciones[i].id===id) return secciones[i]; return null; }
+function recDe(id){ for(var i=0;i<recetas.length;i++) if(recetas[i].id===id) return recetas[i]; return null; }
 function costoIng(ing){
   if(ing.costoFijo>0) return ing.costoFijo;
   if(ing.precioKg>0 && ing.gramos>0) return (ing.precioKg/1000)*ing.gramos;
   return 0;
 }
-function costoBq(bq){ return bq.ings.reduce((a,i)=>a+costoIng(i),0); }
-function costoRec(r){ return r.bloques.reduce((a,b)=>a+costoBq(b),0); }
+function costoBq(bq){ return bq.ings.reduce(function(a,i){return a+costoIng(i);},0); }
+function costoRec(r){ return r.bloques.reduce(function(a,b){return a+costoBq(b);},0); }
 function ganRec(r){ return r.precio - costoRec(r) - r.precio*0.19; }
 function margenRec(r){ return r.precio>0 ? (ganRec(r)/r.precio)*100 : 0; }
 function mcls(m){ return m>=55?'ok':m>=35?'warn':'fire'; }
 function mclr(m){ return m>=55?'#6fcf97':m>=35?'#e8a84a':'#e86040'; }
 
-// ══════════════════════════════════════════════
-//  SIDEBAR
-// ══════════════════════════════════════════════
+// ── PERSISTENCIA ──
+function setPending(k){ pending[k]=true; try{localStorage.setItem('orb_pending',JSON.stringify(pending));}catch(e){} }
+function clearPending(k){ delete pending[k]; try{localStorage.setItem('orb_pending',JSON.stringify(pending));}catch(e){} }
+
+function save() {
+  try{localStorage.setItem('orb_secs',JSON.stringify(secciones));}catch(e){}
+  try{localStorage.setItem('orb_recs',JSON.stringify(recetas));}catch(e){}
+  if(online){
+    Promise.all([sbSet('secciones',secciones),sbSet('recetas',recetas)])
+      .then(function(){ clearPending('secs'); clearPending('recs'); })
+      .catch(function(){ setPending('secs'); setPending('recs'); toast('Error al guardar en la nube','warn'); });
+  } else {
+    setPending('secs'); setPending('recs');
+  }
+}
+
+function sincPendientes(){
+  if(!Object.keys(pending).length) return;
+  Promise.all([sbSet('secciones',secciones),sbSet('recetas',recetas)])
+    .then(function(){ clearPending('secs'); clearPending('recs'); toast('Cambios sincronizados','ok'); })
+    .catch(function(){});
+}
+
+// ── SIDEBAR ──
 function renderSB(){
-  const sb = document.getElementById('sb-body');
-  let h = '';
-  secciones.forEach(sec => {
-    const recs = recetas.filter(r=>r.secId===sec.id);
-    const isOpen = recs.some(r=>r.id===activa) || true;
-    h += `<div class="sb-sec">
-      <div class="sb-sec-hdr" onclick="toggleSBSec('sbi-${sec.id}',this)">
-        <div class="sec-dot" style="background:${sec.color}"></div>
-        <div class="sec-lbl" style="color:${sec.color}">${sec.emoji} ${sec.label}</div>
-        <div class="sec-cnt">${recs.length}</div>
-        <div class="chev ${isOpen?'open'}">▶</div>
-      </div>
-      <div class="sb-items" id="sbi-${sec.id}" style="max-height:${isOpen?'800px':'0'}">`;
-    recs.forEach(r=>{
-      const m = margenRec(r);
-      h+=`<div class="sb-item ${r.id===activa?'active':''}" onclick="verRec('${r.id}')">
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.nombre)}</span>
-        <span class="im">${m>0?m.toFixed(0)+'%':''}</span>
-      </div>`;
+  var sb = document.getElementById('sb-body');
+  var h = '';
+  secciones.forEach(function(sec){
+    var recs = recetas.filter(function(r){return r.secId===sec.id;});
+    h += '<div class="sb-sec">';
+    h += '<div class="sb-sec-hdr" onclick="toggleSBSec(\'sbi-'+sec.id+'\',this)">';
+    h += '<div class="sec-dot" style="background:'+sec.color+'"></div>';
+    h += '<div class="sec-lbl" style="color:'+sec.color+'">'+sec.emoji+' '+esc(sec.label)+'</div>';
+    h += '<div class="sec-cnt">'+recs.length+'</div>';
+    h += '<div class="chev open">&#9654;</div>';
+    h += '</div>';
+    h += '<div class="sb-items" id="sbi-'+sec.id+'" style="max-height:800px">';
+    recs.forEach(function(r){
+      var m = margenRec(r);
+      var activeCls = r.id===activa ? ' active' : '';
+      h += '<div class="sb-item'+activeCls+'" onclick="verRec(\''+r.id+'\')">';
+      h += '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.nombre)+'</span>';
+      h += '<span class="im">'+(m>0?m.toFixed(0)+'%':'')+'</span>';
+      h += '</div>';
     });
-    h+=`<div class="sb-add" onclick="mostrarForm('${sec.id}')">＋ Agregar receta</div>`;
-    // editar/eliminar sección
-    h+=`<div style="display:flex;gap:6px;padding:4px 16px 8px 30px">
-      <button class="btn sm" onclick="editarSec('${sec.id}')">✏ Editar sección</button>
-      ${recs.length===0?`<button class="btn sm danger" onclick="eliminarSec('${sec.id}')">✕</button>`:''}
-    </div>`;
-    h+=`</div></div><div class="sb-div"></div>`;
+    h += '<div class="sb-add" onclick="mostrarForm(\''+sec.id+'\')">&#xff0b; Agregar receta</div>';
+    h += '<div style="display:flex;gap:6px;padding:4px 16px 8px 30px">';
+    h += '<button class="btn sm" onclick="editarSec(\''+sec.id+'\')">&#9998; Editar</button>';
+    if(recs.length===0) h += '<button class="btn sm danger" onclick="eliminarSec(\''+sec.id+'\')">&#10005;</button>';
+    h += '</div>';
+    h += '</div></div><div class="sb-div"></div>';
   });
   sb.innerHTML = h;
 }
+
 function toggleSBSec(id,btn){
-  const el=document.getElementById(id);
-  const ch=btn.querySelector('.chev');
-  const open = el.style.maxHeight!=='0px' && el.style.maxHeight!=='0';
-  el.style.maxHeight = open?'0':'800px';
-  ch.classList.toggle('open',!open);
+  var el = document.getElementById(id);
+  var ch = btn.querySelector('.chev');
+  var isOpen = el.style.maxHeight !== '0px' && el.style.maxHeight !== '0';
+  el.style.maxHeight = isOpen ? '0' : '800px';
+  if(isOpen) ch.classList.remove('open'); else ch.classList.add('open');
 }
 
-// ══════════════════════════════════════════════
-//  VER RECETA
-// ══════════════════════════════════════════════
+// ── VER RECETA ──
 function verRec(id){
-  activa=id;
-  const r=recDe(id); if(!r) return;
-  const sec=secDe(r.secId);
-  const costo=costoRec(r), gan=ganRec(r), m=margenRec(r), mc=mcls(m), iva=r.precio*0.19;
-  const precioMin40 = costo/(1-0.19-0.40);
-
-  let h=`<div class="rec-hdr">
-    <div style="flex:1">
-      <div class="rec-badge" style="color:${sec.color};border-color:${sec.color}30;background:${sec.color}10">
-        ${sec.emoji} ${sec.label}${r.cat?' · '+esc(r.cat):''}
-      </div>
-      <div class="rec-title">${esc(r.nombre)}</div>`;
-  if(r.notas) h+=`<div class="rec-nota-view">📝 ${esc(r.notas)}</div>`;
-  h+=`<div class="rec-meta">
-      <div class="meta-item"><span class="meta-lbl">Precio venta</span><span class="meta-val" style="color:${sec.color}" id="rv-precio">${fmt(r.precio)}</span></div>
-      <div class="meta-sep"></div>
-      <div class="meta-item"><span class="meta-lbl">Costo total</span><span class="meta-val" id="rv-costo">${fmt(costo)}</span></div>
-      <div class="meta-sep"></div>
-      <div class="meta-item"><span class="meta-lbl">IVA 19%</span><span class="meta-val" id="rv-iva">${fmt(iva)}</span></div>
-      <div class="meta-sep"></div>
-      <div class="meta-item"><span class="meta-lbl">Ganancia neta</span><span class="meta-val ${mc}" id="rv-gan">${fmt(gan)}</span></div>
-      <div class="meta-sep"></div>
-      <div class="meta-item"><span class="meta-lbl">Margen</span><span class="meta-val ${mc}" id="rv-margen">${m.toFixed(1)}%</span></div>
-    </div></div>
-    <div style="display:flex;gap:6px;flex-shrink:0;align-items:flex-start;flex-wrap:wrap">
-      <button class="btn sm" onclick="editarCabecera('${r.id}')">✏ Editar</button>
-      <button class="btn sm danger" onclick="pedirElimRec('${r.id}')">✕ Eliminar</button>
-    </div>
-  </div>
-
-  <div class="res-grid">
-    <div class="res-card">
-      <div class="res-card-lbl">Margen neto</div>
-      <div class="res-card-val ${mc}" id="rv-mcard">${m.toFixed(1)}%</div>
-      <div class="mbar"><div class="mbar-fill" id="rv-mbar" style="width:${Math.min(m,100)}%;background:${mclr(m)}"></div></div>
-    </div>
-    <div class="res-card">
-      <div class="res-card-lbl">Precio mínimo (40% margen)</div>
-      <div class="res-card-val" style="color:var(--gold)" id="rv-pmin">${fmt(precioMin40)}</div>
-    </div>
-    <div class="res-card">
-      <div class="res-card-lbl">Ganancia × 100 ventas</div>
-      <div class="res-card-val ok" id="rv-g100">${gan>0?fmt(gan*100):'—'}</div>
-    </div>
-  </div>
-
-  <div class="notas-wrap">
-    <label style="font-size:.58rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);display:block;margin-bottom:5px">Notas de preparación</label>
-    <textarea class="notas-inp" id="rv-notas" placeholder="Ej: usar pan de 80g, no incluir cebolla en temporada…" onchange="guardarNotas('${r.id}',this.value)">${esc(r.notas||'')}</textarea>
-  </div>`;
-
-  // Bloques
-  r.bloques.forEach((bq,bi)=>{
-    const sub=costoBq(bq);
-    h+=`<div class="bloque" id="bq-${bi}">
-      <div class="blq-hdr">
-        <span class="blq-titulo">${esc(bq.titulo)}</span>
-        <button class="btn sm" onclick="renombrarBq('${r.id}',${bi})">✏</button>
-        ${r.bloques.length>1?`<button class="btn sm danger" onclick="eliminarBq('${r.id}',${bi})">✕</button>`:''}
-        <span class="blq-sub">Sub: <span id="bqsub-${bi}">${fmt(sub)}</span></span>
-      </div>
-      <div class="ing-grid hdr">
-        <span>Insumo</span>
-        <span class="r">$/kg o unit.</span>
-        <span class="r">Gramos</span>
-        <span class="r">Costo fijo $</span>
-        <span class="r">Costo calc.</span>
-        <span></span>
-      </div>`;
-    bq.ings.forEach((ing,ii)=>{
-      const c=costoIng(ing);
-      h+=`<div class="ing-grid">
-        <input class="iinp" value="${esc(ing.nombre)}" placeholder="Nombre insumo"
-          onchange="editIng('${r.id}',${bi},${ii},'nombre',this.value)">
-        <input class="iinp num" type="number" value="${ing.precioKg||''}" placeholder="$/kg"
-          oninput="editIng('${r.id}',${bi},${ii},'precioKg',+this.value)">
-        <input class="iinp num" type="number" value="${ing.gramos||''}" placeholder="gr"
-          oninput="editIng('${r.id}',${bi},${ii},'gramos',+this.value)">
-        <input class="iinp num" type="number" value="${ing.costoFijo||''}" placeholder="$"
-          title="Costo fijo: sobreescribe el cálculo $/kg×gr"
-          oninput="editIng('${r.id}',${bi},${ii},'costoFijo',+this.value)">
-        <div class="calc-cell ${c>0?'has':''}" id="cc-${bi}-${ii}">${c>0?fmt(c):'—'}</div>
-        <button class="bdel" onclick="elimIng('${r.id}',${bi},${ii})">✕</button>
-      </div>`;
+  activa = id;
+  var r = recDe(id); if(!r) return;
+  var sec = secDe(r.secId);
+  var costo = costoRec(r), gan = ganRec(r), m = margenRec(r), mc = mcls(m), iva = r.precio*0.19;
+  var precioMin40 = costo/(1-0.19-0.40);
+  var h = '';
+  h += '<div class="rec-hdr">';
+  h += '<div style="flex:1">';
+  h += '<div class="rec-badge" style="color:'+sec.color+';border-color:'+sec.color+'30;background:'+sec.color+'10">';
+  h += sec.emoji+' '+esc(sec.label)+(r.cat?' &middot; '+esc(r.cat):'');
+  h += '</div>';
+  h += '<div class="rec-title">'+esc(r.nombre)+'</div>';
+  if(r.notas) h += '<div class="rec-nota-view">&#128221; '+esc(r.notas)+'</div>';
+  h += '<div class="rec-meta">';
+  h += '<div class="meta-item"><span class="meta-lbl">Precio venta</span><span class="meta-val" style="color:'+sec.color+'" id="rv-precio">'+fmt(r.precio)+'</span></div>';
+  h += '<div class="meta-sep"></div>';
+  h += '<div class="meta-item"><span class="meta-lbl">Costo total</span><span class="meta-val" id="rv-costo">'+fmt(costo)+'</span></div>';
+  h += '<div class="meta-sep"></div>';
+  h += '<div class="meta-item"><span class="meta-lbl">IVA 19%</span><span class="meta-val" id="rv-iva">'+fmt(iva)+'</span></div>';
+  h += '<div class="meta-sep"></div>';
+  h += '<div class="meta-item"><span class="meta-lbl">Ganancia neta</span><span class="meta-val '+mc+'" id="rv-gan">'+fmt(gan)+'</span></div>';
+  h += '<div class="meta-sep"></div>';
+  h += '<div class="meta-item"><span class="meta-lbl">Margen</span><span class="meta-val '+mc+'" id="rv-margen">'+m.toFixed(1)+'%</span></div>';
+  h += '</div></div>';
+  h += '<div style="display:flex;gap:6px;flex-shrink:0;align-items:flex-start;flex-wrap:wrap">';
+  h += '<button class="btn sm" onclick="editarCabecera(\''+r.id+'\')">&#9998; Editar</button>';
+  h += '<button class="btn sm danger" onclick="pedirElimRec(\''+r.id+'\')">&#10005; Eliminar</button>';
+  h += '</div></div>';
+  h += '<div class="res-grid">';
+  h += '<div class="res-card"><div class="res-card-lbl">Margen neto</div>';
+  h += '<div class="res-card-val '+mc+'" id="rv-mcard">'+m.toFixed(1)+'%</div>';
+  h += '<div class="mbar"><div class="mbar-fill" id="rv-mbar" style="width:'+Math.min(m,100)+'%;background:'+mclr(m)+'"></div></div></div>';
+  h += '<div class="res-card"><div class="res-card-lbl">Precio m&iacute;nimo (40% margen)</div>';
+  h += '<div class="res-card-val" style="color:var(--gold)" id="rv-pmin">'+fmt(precioMin40)+'</div></div>';
+  h += '<div class="res-card"><div class="res-card-lbl">Ganancia &times; 100 ventas</div>';
+  h += '<div class="res-card-val ok" id="rv-g100">'+(gan>0?fmt(gan*100):'—')+'</div></div>';
+  h += '</div>';
+  h += '<div class="notas-wrap">';
+  h += '<label style="font-size:.58rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);display:block;margin-bottom:5px">Notas de preparaci&oacute;n</label>';
+  h += '<textarea class="notas-inp" id="rv-notas" placeholder="Ej: usar pan de 80g…" onchange="guardarNotas(\''+r.id+'\',this.value)">'+esc(r.notas||'')+'</textarea>';
+  h += '</div>';
+  r.bloques.forEach(function(bq,bi){
+    var sub = costoBq(bq);
+    h += '<div class="bloque" id="bq-'+bi+'">';
+    h += '<div class="blq-hdr">';
+    h += '<span class="blq-titulo">'+esc(bq.titulo)+'</span>';
+    h += '<button class="btn sm" onclick="renombrarBq(\''+r.id+'\','+bi+')">&#9998;</button>';
+    if(r.bloques.length>1) h += '<button class="btn sm danger" onclick="eliminarBq(\''+r.id+'\','+bi+')">&#10005;</button>';
+    h += '<span class="blq-sub">Sub: <span id="bqsub-'+bi+'">'+fmt(sub)+'</span></span>';
+    h += '</div>';
+    h += '<div class="ing-grid hdr">';
+    h += '<span>Insumo</span><span class="r">$/kg o unit.</span><span class="r">Gramos</span><span class="r">Costo fijo $</span><span class="r">Calculado</span><span></span>';
+    h += '</div>';
+    bq.ings.forEach(function(ing,ii){
+      var c = costoIng(ing);
+      var hasCls = c>0 ? ' has' : '';
+      h += '<div class="ing-grid">';
+      h += '<input class="iinp" value="'+esc(ing.nombre)+'" placeholder="Nombre insumo" onchange="editIng(\''+r.id+'\','+bi+','+ii+',\'nombre\',this.value)">';
+      h += '<input class="iinp num" type="number" value="'+(ing.precioKg||'')+'" placeholder="$/kg" oninput="editIng(\''+r.id+'\','+bi+','+ii+',\'precioKg\',+this.value)">';
+      h += '<input class="iinp num" type="number" value="'+(ing.gramos||'')+'" placeholder="gr" oninput="editIng(\''+r.id+'\','+bi+','+ii+',\'gramos\',+this.value)">';
+      h += '<input class="iinp num" type="number" value="'+(ing.costoFijo||'')+'" placeholder="$" title="Costo fijo" oninput="editIng(\''+r.id+'\','+bi+','+ii+',\'costoFijo\',+this.value)">';
+      h += '<div class="calc-cell'+hasCls+'" id="cc-'+bi+'-'+ii+'">'+(c>0?fmt(c):'—')+'</div>';
+      h += '<button class="bdel" onclick="elimIng(\''+r.id+'\','+bi+','+ii+')">&#10005;</button>';
+      h += '</div>';
     });
-    h+=`<button class="add-ing-btn" onclick="addIng('${r.id}',${bi})">＋ Agregar insumo</button></div>`;
+    h += '<button class="add-ing-btn" onclick="addIng(\''+r.id+'\','+bi+')">&#xff0b; Agregar insumo</button>';
+    h += '</div>';
   });
-
-  h+=`<div style="display:flex;gap:8px;margin-top:6px">
-    <button class="btn" onclick="addBq('${r.id}')">＋ Nuevo bloque de insumos</button>
-  </div>`;
-
-  document.getElementById('main').innerHTML=h;
+  h += '<div style="display:flex;gap:8px;margin-top:6px">';
+  h += '<button class="btn" onclick="addBq(\''+r.id+'\')">&#xff0b; Nuevo bloque de insumos</button>';
+  h += '</div>';
+  document.getElementById('main').innerHTML = h;
   renderSB();
 }
 
-// ══════════════════════════════════════════════
-//  EDICIÓN INLINE
-// ══════════════════════════════════════════════
+// ── EDICIÓN INLINE ──
 function editIng(rid,bi,ii,campo,val){
-  const r=recDe(rid); if(!r) return;
-  r.bloques[bi].ings[ii][campo]=val;
-  // si se ingresó costoFijo, limpiar precioKg/gramos visualmente (no los borra, pero costoFijo toma precedencia)
+  var r = recDe(rid); if(!r) return;
+  r.bloques[bi].ings[ii][campo] = val;
   save();
-  const c=costoIng(r.bloques[bi].ings[ii]);
-  const cel=document.getElementById(`cc-${bi}-${ii}`);
-  if(cel){ cel.textContent=c>0?fmt(c):'—'; cel.className=`calc-cell ${c>0?'has':''}`; }
+  var c = costoIng(r.bloques[bi].ings[ii]);
+  var cel = document.getElementById('cc-'+bi+'-'+ii);
+  if(cel){ cel.textContent = c>0?fmt(c):'—'; cel.className = 'calc-cell'+(c>0?' has':''); }
   recalcView(rid);
 }
+
 function recalcView(rid){
-  const r=recDe(rid); if(!r||activa!==rid) return;
-  const costo=costoRec(r),gan=ganRec(r),m=margenRec(r),mc=mcls(m),iva=r.precio*0.19;
-  const set=(id,v,cls)=>{ const e=document.getElementById(id); if(e){e.textContent=v;if(cls!==undefined)e.className=`meta-val ${cls||mc}`;} };
+  var r = recDe(rid); if(!r||activa!==rid) return;
+  var costo=costoRec(r),gan=ganRec(r),m=margenRec(r),mc=mcls(m),iva=r.precio*0.19;
+  function set(id,v,cls){var e=document.getElementById(id);if(e){e.textContent=v;if(cls!==undefined)e.className='meta-val '+cls;}}
   set('rv-costo',fmt(costo));
   set('rv-iva',fmt(iva));
   set('rv-gan',fmt(gan),mc);
   set('rv-margen',m.toFixed(1)+'%',mc);
-  const mc2=document.getElementById('rv-mcard'); if(mc2){mc2.textContent=m.toFixed(1)+'%';mc2.className=`res-card-val ${mc}`;}
-  const mb=document.getElementById('rv-mbar'); if(mb){mb.style.width=Math.min(m,100)+'%';mb.style.background=mclr(m);}
-  const pm=document.getElementById('rv-pmin'); if(pm) pm.textContent=fmt(costo/(1-0.19-0.40));
-  const g1=document.getElementById('rv-g100'); if(g1) g1.textContent=gan>0?fmt(gan*100):'—';
-  // subtotales bloque
-  r.bloques.forEach((bq,bi)=>{ const e=document.getElementById(`bqsub-${bi}`); if(e) e.textContent=fmt(costoBq(bq)); });
+  var mc2=document.getElementById('rv-mcard'); if(mc2){mc2.textContent=m.toFixed(1)+'%';mc2.className='res-card-val '+mc;}
+  var mb=document.getElementById('rv-mbar'); if(mb){mb.style.width=Math.min(m,100)+'%';mb.style.background=mclr(m);}
+  var pm=document.getElementById('rv-pmin'); if(pm) pm.textContent=fmt(costo/(1-0.19-0.40));
+  var g1=document.getElementById('rv-g100'); if(g1) g1.textContent=gan>0?fmt(gan*100):'—';
+  r.bloques.forEach(function(bq,bi){var e=document.getElementById('bqsub-'+bi);if(e) e.textContent=fmt(costoBq(bq));});
   renderSB();
 }
 
-function guardarNotas(rid,val){
-  const r=recDe(rid); if(!r) return;
-  r.notas=val.trim(); save();
-}
-function addIng(rid,bi){
-  const r=recDe(rid); if(!r) return;
-  r.bloques[bi].ings.push({nombre:'',precioKg:0,gramos:0,costoFijo:0});
-  save(); verRec(rid);
-}
-function elimIng(rid,bi,ii){
-  const r=recDe(rid); if(!r) return;
-  r.bloques[bi].ings.splice(ii,1); save(); verRec(rid);
-}
+function guardarNotas(rid,val){ var r=recDe(rid);if(!r)return; r.notas=val.trim(); save(); }
+
+function addIng(rid,bi){ var r=recDe(rid);if(!r)return; r.bloques[bi].ings.push({nombre:'',precioKg:0,gramos:0,costoFijo:0}); save(); verRec(rid); }
+function elimIng(rid,bi,ii){ var r=recDe(rid);if(!r)return; r.bloques[bi].ings.splice(ii,1); save(); verRec(rid); }
 function addBq(rid){
-  const r=recDe(rid); if(!r) return;
-  const nombre=prompt('Nombre del nuevo bloque (ej: Agregados, Salsa, Empaque):');
-  if(!nombre) return;
+  var r=recDe(rid);if(!r)return;
+  var nombre=prompt('Nombre del nuevo bloque (ej: Agregados, Salsa, Empaque):');
+  if(!nombre)return;
   r.bloques.push({titulo:nombre.trim(),ings:[{nombre:'',precioKg:0,gramos:0,costoFijo:0}]});
   save(); verRec(rid);
 }
-function renombrarBq(rid,bi){
-  const r=recDe(rid); if(!r) return;
-  const n=prompt('Nuevo nombre del bloque:',r.bloques[bi].titulo);
-  if(!n) return;
-  r.bloques[bi].titulo=n.trim(); save(); verRec(rid);
-}
-function eliminarBq(rid,bi){
-  const r=recDe(rid); if(!r) return;
-  if(r.bloques.length<=1){toast('Debe quedar al menos un bloque','warn');return;}
-  r.bloques.splice(bi,1); save(); verRec(rid);
-}
+function renombrarBq(rid,bi){ var r=recDe(rid);if(!r)return; var n=prompt('Nuevo nombre:',r.bloques[bi].titulo);if(!n)return; r.bloques[bi].titulo=n.trim(); save(); verRec(rid); }
+function eliminarBq(rid,bi){ var r=recDe(rid);if(!r)return; if(r.bloques.length<=1){toast('Debe quedar al menos un bloque','warn');return;} r.bloques.splice(bi,1); save(); verRec(rid); }
 
-// ══════════════════════════════════════════════
-//  EDITAR CABECERA (precio, cat, notas)
-// ══════════════════════════════════════════════
+// ── EDITAR CABECERA ──
 function editarCabecera(rid){
-  const r=recDe(rid); if(!r) return;
-  const sec=secDe(r.secId);
-  document.getElementById('main').innerHTML=`
-  <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.06em;font-weight:400;margin-bottom:18px">Editar receta</h2>
-  <div class="form-nueva">
-    <div class="frow c2">
-      <div class="ff"><label>Nombre</label><input id="ec-nombre" value="${esc(r.nombre)}"></div>
-      <div class="ff"><label>Sección</label><select id="ec-sec">${secciones.map(s=>`<option value="${s.id}" ${s.id===r.secId?'selected':''}>${s.emoji} ${s.label}</option>`).join('')}</select></div>
-    </div>
-    <div class="frow c3">
-      <div class="ff"><label>Categoría / Carta</label><input id="ec-cat" value="${esc(r.cat||'')}" placeholder="Ej: Sándwiches"></div>
-      <div class="ff"><label>Precio de venta ($)</label><input type="number" id="ec-precio" value="${r.precio}"></div>
-      <div class="ff"><label>Margen objetivo (%)</label><input type="number" id="ec-margenobj" value="50"></div>
-    </div>
-    <div class="ff"><label>Notas de preparación</label><textarea id="ec-notas" placeholder="Observaciones, variantes, instrucciones…">${esc(r.notas||'')}</textarea></div>
-    <div style="display:flex;gap:8px;margin-top:14px">
-      <button class="btn primary" onclick="guardarCabecera('${rid}')">Guardar cambios</button>
-      <button class="btn" onclick="verRec('${rid}')">Cancelar</button>
-    </div>
-  </div>`;
+  var r=recDe(rid);if(!r)return;
+  var secOpts=''; secciones.forEach(function(s){ secOpts+='<option value="'+s.id+'"'+(s.id===r.secId?' selected':'')+'>'+s.emoji+' '+esc(s.label)+'</option>'; });
+  var h = '<h2 style="font-family:\'Bebas Neue\',sans-serif;font-size:1.5rem;letter-spacing:.06em;font-weight:400;margin-bottom:18px">Editar receta</h2>';
+  h += '<div class="form-nueva">';
+  h += '<div class="frow c2"><div class="ff"><label>Nombre</label><input id="ec-nombre" value="'+esc(r.nombre)+'"></div>';
+  h += '<div class="ff"><label>Sección</label><select id="ec-sec">'+secOpts+'</select></div></div>';
+  h += '<div class="frow c3"><div class="ff"><label>Categoría / Carta</label><input id="ec-cat" value="'+esc(r.cat||'')+'" placeholder="Ej: Sándwiches"></div>';
+  h += '<div class="ff"><label>Precio de venta ($)</label><input type="number" id="ec-precio" value="'+r.precio+'"></div>';
+  h += '<div class="ff"><label>Margen objetivo (%)</label><input type="number" id="ec-margenobj" value="50"></div></div>';
+  h += '<div class="ff"><label>Notas</label><textarea id="ec-notas" placeholder="Observaciones…">'+esc(r.notas||'')+'</textarea></div>';
+  h += '<div style="display:flex;gap:8px;margin-top:14px">';
+  h += '<button class="btn primary" onclick="guardarCabecera(\''+rid+'\')">Guardar cambios</button>';
+  h += '<button class="btn" onclick="verRec(\''+rid+'\')">Cancelar</button></div></div>';
+  document.getElementById('main').innerHTML = h;
 }
 function guardarCabecera(rid){
-  const r=recDe(rid); if(!r) return;
-  const nombre=document.getElementById('ec-nombre').value.trim();
-  const precio=parseInt(document.getElementById('ec-precio').value)||0;
+  var r=recDe(rid);if(!r)return;
+  var nombre=document.getElementById('ec-nombre').value.trim();
+  var precio=parseInt(document.getElementById('ec-precio').value)||0;
   if(!nombre){toast('Ingresa un nombre','warn');return;}
   if(!precio){toast('Ingresa el precio','warn');return;}
-  r.nombre=nombre;
-  r.secId=document.getElementById('ec-sec').value;
+  r.nombre=nombre; r.secId=document.getElementById('ec-sec').value;
   r.cat=document.getElementById('ec-cat').value.trim();
-  r.precio=precio;
-  r.notas=document.getElementById('ec-notas').value.trim();
+  r.precio=precio; r.notas=document.getElementById('ec-notas').value.trim();
   save(); verRec(rid); toast('Receta actualizada','ok');
 }
 
-// ══════════════════════════════════════════════
-//  NUEVA RECETA — FORM
-// ══════════════════════════════════════════════
-let fBloques=[];
+// ── NUEVA RECETA ──
+var fBloques = [];
 function mostrarForm(secIdPre){
-  activa=null;
-  fBloques=[];
-  const main=document.getElementById('main');
-  const secOpts=secciones.map(s=>`<option value="${s.id}" ${s.id===(secIdPre||secciones[0]?.id)?'selected':''}>${s.emoji} ${s.label}</option>`).join('');
-
-  main.innerHTML=`
-  <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.06em;font-weight:400;margin-bottom:18px">Nueva receta</h2>
-  <div class="form-nueva">
-    <div class="frow c2">
-      <div class="ff"><label>Nombre del producto</label><input id="fn-nombre" placeholder="Ej: Sándwich Veggie" autocomplete="off"></div>
-      <div class="ff"><label>Sección</label><select id="fn-sec" onchange="actualizarCatsSug()">${secOpts}</select></div>
-    </div>
-    <div class="frow c4">
-      <div class="ff"><label>Categoría / Carta</label><input id="fn-cat" placeholder="Ej: Sándwiches" list="dl-cats"><datalist id="dl-cats"></datalist></div>
-      <div class="ff"><label>Precio de venta ($)</label><input type="number" id="fn-precio" placeholder="0" oninput="calcSug()"></div>
-      <div class="ff"><label>Margen objetivo (%)</label><input type="number" id="fn-margenobj" value="50" oninput="calcSug()"></div>
-      <div class="ff"><label>Porción / Unidad</label><input id="fn-porcion" placeholder="Ej: 1 unidad, 250g"></div>
-    </div>
-    <div class="ff" style="margin-bottom:12px"><label>Notas de preparación</label>
-      <textarea id="fn-notas" placeholder="Observaciones, variantes, instrucciones especiales…"></textarea>
-    </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <label style="font-size:.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Bloques de insumos</label>
-      <button class="btn sm" onclick="addFBloque()">＋ Bloque</button>
-    </div>
-    <div id="fn-bloques"></div>
-    <div id="fn-sug"></div>
-    <div style="display:flex;gap:8px;margin-top:16px">
-      <button class="btn primary" onclick="crearReceta()">Guardar receta</button>
-      <button class="btn" onclick="cancelarForm()">Cancelar</button>
-    </div>
-  </div>`;
+  activa=null; fBloques=[];
+  var secId = secIdPre || (secciones[0]?secciones[0].id:'');
+  var secOpts=''; secciones.forEach(function(s){ secOpts+='<option value="'+s.id+'"'+(s.id===secId?' selected':'')+'>'+s.emoji+' '+esc(s.label)+'</option>'; });
+  var h = '<h2 style="font-family:\'Bebas Neue\',sans-serif;font-size:1.5rem;letter-spacing:.06em;font-weight:400;margin-bottom:18px">Nueva receta</h2>';
+  h += '<div class="form-nueva">';
+  h += '<div class="frow c2"><div class="ff"><label>Nombre del producto</label><input id="fn-nombre" placeholder="Ej: Sándwich Veggie" autocomplete="off"></div>';
+  h += '<div class="ff"><label>Sección</label><select id="fn-sec" onchange="actualizarCatsSug()">'+secOpts+'</select></div></div>';
+  h += '<div class="frow c4">';
+  h += '<div class="ff"><label>Categoría / Carta</label><input id="fn-cat" placeholder="Ej: Sándwiches" list="dl-cats"><datalist id="dl-cats"></datalist></div>';
+  h += '<div class="ff"><label>Precio de venta ($)</label><input type="number" id="fn-precio" placeholder="0" oninput="calcSug()"></div>';
+  h += '<div class="ff"><label>Margen objetivo (%)</label><input type="number" id="fn-margenobj" value="50" oninput="calcSug()"></div>';
+  h += '<div class="ff"><label>Porción / Unidad</label><input id="fn-porcion" placeholder="Ej: 1 unidad"></div></div>';
+  h += '<div class="ff" style="margin-bottom:12px"><label>Notas de preparación</label>';
+  h += '<textarea id="fn-notas" placeholder="Observaciones, variantes…"></textarea></div>';
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+  h += '<label style="font-size:.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Bloques de insumos</label>';
+  h += '<button class="btn sm" onclick="addFBloque()">&#xff0b; Bloque</button></div>';
+  h += '<div id="fn-bloques"></div><div id="fn-sug"></div>';
+  h += '<div style="display:flex;gap:8px;margin-top:16px">';
+  h += '<button class="btn primary" onclick="crearReceta()">Guardar receta</button>';
+  h += '<button class="btn" onclick="cancelarForm()">Cancelar</button></div></div>';
+  document.getElementById('main').innerHTML = h;
   actualizarCatsSug();
   addFBloque();
-  setTimeout(()=>document.getElementById('fn-nombre')?.focus(),80);
+  setTimeout(function(){var el=document.getElementById('fn-nombre');if(el)el.focus();},80);
   renderSB();
 }
 
 function actualizarCatsSug(){
-  const secId=document.getElementById('fn-sec')?.value;
-  const sec=secDe(secId);
-  const dl=document.getElementById('dl-cats');
-  if(dl&&sec) dl.innerHTML=sec.bloquesSugeridos.map(b=>`<option value="${b}">`).join('');
+  var secId=document.getElementById('fn-sec')?document.getElementById('fn-sec').value:'';
+  var sec=secDe(secId); if(!sec)return;
+  var dl=document.getElementById('dl-cats');
+  if(dl) dl.innerHTML=sec.bs.map(function(b){return '<option value="'+b+'">';}).join('');
 }
 
 function addFBloque(){
-  const secId=document.getElementById('fn-sec')?.value;
-  const sec=secDe(secId);
-  const idx=fBloques.length;
-  const titulo=sec?.bloquesSugeridos[idx]||'Insumos';
-  fBloques.push({titulo,ings:[]});
+  var secId=document.getElementById('fn-sec')?document.getElementById('fn-sec').value:'';
+  var sec=secDe(secId);
+  var titulo=sec&&sec.bs[fBloques.length]?sec.bs[fBloques.length]:'Insumos';
+  fBloques.push({titulo:titulo,ings:[]});
   renderFBloques();
 }
+
 function renderFBloques(){
-  const cont=document.getElementById('fn-bloques'); if(!cont) return;
-  cont.innerHTML=fBloques.map((bq,bi)=>`
-  <div class="fb-bloque">
-    <div class="fb-blq-hdr">
-      <input class="fb-blq-title-inp" value="${esc(bq.titulo)}" placeholder="Nombre bloque"
-        onchange="fBloques[${bi}].titulo=this.value">
-      ${fBloques.length>1?`<button class="bdel" onclick="fBloques.splice(${bi},1);renderFBloques()">✕</button>`:''}
-    </div>
-    <div class="ing-grid hdr" style="grid-template-columns:1fr 88px 72px 88px 80px 26px">
-      <span>Insumo</span><span class="r">$/kg o unit.</span><span class="r">Gramos</span><span class="r">Costo fijo $</span><span class="r">Calculado</span><span></span>
-    </div>
-    ${bq.ings.map((ing,ii)=>`
-    <div class="ing-grid" style="grid-template-columns:1fr 88px 72px 88px 80px 26px">
-      <input class="iinp" value="${esc(ing.nombre)}" placeholder="Ej: Pan marraqueta"
-        onchange="fBloques[${bi}].ings[${ii}].nombre=this.value">
-      <input class="iinp num" type="number" value="${ing.precioKg||''}" placeholder="$/kg"
-        oninput="fBloques[${bi}].ings[${ii}].precioKg=+this.value;updFCosto(${bi},${ii})">
-      <input class="iinp num" type="number" value="${ing.gramos||''}" placeholder="gr"
-        oninput="fBloques[${bi}].ings[${ii}].gramos=+this.value;updFCosto(${bi},${ii})">
-      <input class="iinp num" type="number" value="${ing.costoFijo||''}" placeholder="$"
-        title="Costo fijo: sobreescribe el cálculo $/kg×gr"
-        oninput="fBloques[${bi}].ings[${ii}].costoFijo=+this.value;updFCosto(${bi},${ii})">
-      <div class="calc-cell ${costoIng(ing)>0?'has':''}" id="fc-${bi}-${ii}">${costoIng(ing)>0?fmt(costoIng(ing)):'—'}</div>
-      <button class="bdel" onclick="fBloques[${bi}].ings.splice(${ii},1);renderFBloques()">✕</button>
-    </div>`).join('')}
-    <button class="add-ing-btn" onclick="fBloques[${bi}].ings.push({nombre:'',precioKg:0,gramos:0,costoFijo:0});renderFBloques()">＋ Agregar insumo</button>
-  </div>`).join('');
+  var cont=document.getElementById('fn-bloques'); if(!cont)return;
+  var h='';
+  fBloques.forEach(function(bq,bi){
+    h += '<div class="fb-bloque">';
+    h += '<div class="fb-blq-hdr">';
+    h += '<input class="fb-blq-title-inp" value="'+esc(bq.titulo)+'" placeholder="Nombre bloque" onchange="fBloques['+bi+'].titulo=this.value">';
+    if(fBloques.length>1) h += '<button class="bdel" onclick="fBloques.splice('+bi+',1);renderFBloques()">&#10005;</button>';
+    h += '</div>';
+    h += '<div class="ing-grid hdr" style="grid-template-columns:1fr 88px 72px 88px 80px 26px">';
+    h += '<span>Insumo</span><span class="r">$/kg o unit.</span><span class="r">Gramos</span><span class="r">Costo fijo $</span><span class="r">Calculado</span><span></span></div>';
+    bq.ings.forEach(function(ing,ii){
+      var c=costoIng(ing);
+      h += '<div class="ing-grid" style="grid-template-columns:1fr 88px 72px 88px 80px 26px">';
+      h += '<input class="iinp" value="'+esc(ing.nombre)+'" placeholder="Ej: Pan marraqueta" onchange="fBloques['+bi+'].ings['+ii+'].nombre=this.value">';
+      h += '<input class="iinp num" type="number" value="'+(ing.precioKg||'')+'" placeholder="$/kg" oninput="fBloques['+bi+'].ings['+ii+'].precioKg=+this.value;updFCosto('+bi+','+ii+')">';
+      h += '<input class="iinp num" type="number" value="'+(ing.gramos||'')+'" placeholder="gr" oninput="fBloques['+bi+'].ings['+ii+'].gramos=+this.value;updFCosto('+bi+','+ii+')">';
+      h += '<input class="iinp num" type="number" value="'+(ing.costoFijo||'')+'" placeholder="$" oninput="fBloques['+bi+'].ings['+ii+'].costoFijo=+this.value;updFCosto('+bi+','+ii+')">';
+      h += '<div class="calc-cell'+(c>0?' has':'')+'" id="fc-'+bi+'-'+ii+'">'+(c>0?fmt(c):'—')+'</div>';
+      h += '<button class="bdel" onclick="fBloques['+bi+'].ings.splice('+ii+',1);renderFBloques()">&#10005;</button>';
+      h += '</div>';
+    });
+    h += '<button class="add-ing-btn" onclick="fBloques['+bi+'].ings.push({nombre:\'\',precioKg:0,gramos:0,costoFijo:0});renderFBloques()">&#xff0b; Agregar insumo</button>';
+    h += '</div>';
+  });
+  cont.innerHTML = h;
   calcSug();
 }
+
 function updFCosto(bi,ii){
-  const ing=fBloques[bi].ings[ii];
-  const c=costoIng(ing);
-  const el=document.getElementById(`fc-${bi}-${ii}`);
-  if(el){el.textContent=c>0?fmt(c):'—';el.className=`calc-cell ${c>0?'has':''}`;}
+  var ing=fBloques[bi].ings[ii];
+  var c=costoIng(ing);
+  var el=document.getElementById('fc-'+bi+'-'+ii);
+  if(el){el.textContent=c>0?fmt(c):'—';el.className='calc-cell'+(c>0?' has':'');}
   calcSug();
 }
+
 function calcSug(){
-  const precio=parseFloat(document.getElementById('fn-precio')?.value)||0;
-  const obj=parseFloat(document.getElementById('fn-margenobj')?.value)||50;
-  const costo=fBloques.reduce((a,b)=>a+b.ings.reduce((a2,i)=>a2+costoIng(i),0),0);
-  const el=document.getElementById('fn-sug'); if(!el) return;
+  var precio=parseFloat(document.getElementById('fn-precio')?document.getElementById('fn-precio').value:0)||0;
+  var obj=parseFloat(document.getElementById('fn-margenobj')?document.getElementById('fn-margenobj').value:50)||50;
+  var costo=0;
+  fBloques.forEach(function(b){b.ings.forEach(function(i){costo+=costoIng(i);});});
+  var el=document.getElementById('fn-sug'); if(!el)return;
   if(costo<=0){el.innerHTML='';return;}
-  const precioMin=costo/(1-0.19-obj/100);
-  const ganActual=precio>0?precio-costo-precio*0.19:0;
-  const mActual=precio>0?(ganActual/precio*100):0;
-  const alerta=precio>0&&mActual<30?`<br>⚠ Margen actual <strong>${mActual.toFixed(0)}%</strong> — considera subir el precio.`:'';
-  el.innerHTML=`<div class="sug-box">
-    Costo total: <strong>${fmt(costo)}</strong> ·
-    Precio mínimo para ${obj}% margen: <strong>${fmt(precioMin)}</strong>
-    ${precio>0?` · Margen actual: <strong>${mActual.toFixed(1)}%</strong>`:''}${alerta}
-  </div>`;
+  var precioMin=costo/(1-0.19-obj/100);
+  var ganActual=precio>0?precio-costo-precio*0.19:0;
+  var mActual=precio>0?(ganActual/precio*100):0;
+  var alerta=precio>0&&mActual<30?' &#9888; Margen actual <strong>'+mActual.toFixed(0)+'%</strong> — considera subir el precio.':'';
+  el.innerHTML='<div class="sug-box">Costo total: <strong>'+fmt(costo)+'</strong> &middot; Precio m&iacute;nimo para '+obj+'% margen: <strong>'+fmt(precioMin)+'</strong>'+(precio>0?' &middot; Margen actual: <strong>'+mActual.toFixed(1)+'%</strong>':'')+alerta+'</div>';
 }
+
 function crearReceta(){
-  const nombre=document.getElementById('fn-nombre').value.trim();
-  const secId=document.getElementById('fn-sec').value;
-  const cat=document.getElementById('fn-cat').value.trim();
-  const precio=parseInt(document.getElementById('fn-precio').value)||0;
-  const notas=document.getElementById('fn-notas').value.trim();
-  const porcion=document.getElementById('fn-porcion').value.trim();
+  var nombre=document.getElementById('fn-nombre').value.trim();
+  var secId=document.getElementById('fn-sec').value;
+  var cat=document.getElementById('fn-cat').value.trim();
+  var precio=parseInt(document.getElementById('fn-precio').value)||0;
+  var notas=document.getElementById('fn-notas').value.trim();
+  var porcion=document.getElementById('fn-porcion').value.trim();
   if(!nombre){toast('Ingresa un nombre','warn');return;}
   if(!precio){toast('Ingresa el precio de venta','warn');return;}
-  // validar duplicado
-  if(recetas.some(r=>r.secId===secId&&r.nombre.toLowerCase()===nombre.toLowerCase())){
-    toast('Ya existe una receta con ese nombre en esta sección','warn'); return;
+  for(var i=0;i<recetas.length;i++){
+    if(recetas[i].secId===secId&&recetas[i].nombre.toLowerCase()===nombre.toLowerCase()){
+      toast('Ya existe una receta con ese nombre en esta sección','warn');return;
+    }
   }
-  const r={id:uid(),secId,cat:cat||(secDe(secId)?.bloquesSugeridos[0]||'General'),nombre,precio,notas,porcion,
-    bloques:fBloques.map(b=>({titulo:b.titulo,ings:b.ings.map(i=>({...i}))}))};
+  var sec=secDe(secId);
+  var r={id:uid(),secId:secId,cat:cat||(sec?sec.bs[0]:'General'),nombre:nombre,precio:precio,notas:notas,porcion:porcion,
+    bloques:fBloques.map(function(b){return {titulo:b.titulo,ings:b.ings.map(function(i){return {nombre:i.nombre,precioKg:i.precioKg,gramos:i.gramos,costoFijo:i.costoFijo};})};})};
   recetas.push(r); save(); activa=r.id; verRec(r.id); toast('Receta creada','ok');
 }
+
 function cancelarForm(){
   if(activa) verRec(activa);
-  else{ document.getElementById('main').innerHTML=document.getElementById('empty')?.outerHTML||`<div class="empty"><div class="empty-icon">📋</div><h2>Sin recetas</h2><button class="btn primary" onclick="mostrarForm()">＋ Nueva receta</button></div>`; }
+  else mostrarVacio();
   renderSB();
 }
 
-// ══════════════════════════════════════════════
-//  SECCIONES — CRUD
-// ══════════════════════════════════════════════
-const SWATCHES_PRESET=['#d4a96a','#6ab4d4','#9d8fd4','#6fcf97','#e8a84a','#e86040','#6ad4c8','#d46a9d','#a8d46a','#6a7fd4','#d4d46a','#6ab4d4'];
-function renderSwatches(selColor){
-  document.getElementById('sec-swatches').innerHTML=
-    SWATCHES_PRESET.map(c=>`<div class="swatch ${c===selColor?'sel':''}" style="background:${c}"
-      onclick="selSwatch('${c}',this)"></div>`).join('');
-  document.getElementById('sec-color').value=selColor||SWATCHES_PRESET[0];
+function mostrarVacio(){
+  document.getElementById('main').innerHTML='<div class="empty"><div class="empty-icon">&#128203;</div><h2>Sin recetas a&uacute;n</h2><p style="font-size:.79rem;max-width:260px;line-height:1.6;color:var(--muted2)">Crea tu primera receta o agrega una secci&oacute;n.</p><button class="btn primary" onclick="mostrarForm()">&#xff0b; Nueva receta</button></div>';
+}
+
+// ── SECCIONES ──
+var SWATCHES_P = ['#d4a96a','#6ab4d4','#9d8fd4','#6fcf97','#e8a84a','#e86040','#6ad4c8','#d46a9d','#a8d46a','#6a7fd4','#d4d46a','#d4886a'];
+function renderSwatches(sel){
+  var h='';
+  SWATCHES_P.forEach(function(c){
+    h+='<div class="swatch'+(c===sel?' sel':'')+'" style="background:'+c+'" onclick="selSwatch(\''+c+'\',this)"></div>';
+  });
+  document.getElementById('sec-swatches').innerHTML=h;
+  document.getElementById('sec-color').value=sel||SWATCHES_P[0];
 }
 function selSwatch(c,el){
-  document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('sel'));
+  document.querySelectorAll('.swatch').forEach(function(s){s.classList.remove('sel');});
   el.classList.add('sel');
   document.getElementById('sec-color').value=c;
 }
@@ -732,13 +591,13 @@ function abrirModalSec(){
   document.getElementById('sec-nombre').value='';
   document.getElementById('sec-emoji').value='';
   document.getElementById('sec-ok-btn').textContent='Crear';
-  renderSwatches(SWATCHES_PRESET[0]);
+  renderSwatches(SWATCHES_P[0]);
   document.getElementById('ov-sec').classList.remove('hidden');
-  setTimeout(()=>document.getElementById('sec-nombre').focus(),80);
+  setTimeout(function(){document.getElementById('sec-nombre').focus();},80);
 }
 function editarSec(id){
   secEditId=id;
-  const sec=secDe(id); if(!sec) return;
+  var sec=secDe(id);if(!sec)return;
   document.getElementById('sec-modal-titulo').textContent='Editar sección';
   document.getElementById('sec-nombre').value=sec.label;
   document.getElementById('sec-emoji').value=sec.emoji;
@@ -747,127 +606,116 @@ function editarSec(id){
   document.getElementById('ov-sec').classList.remove('hidden');
 }
 function guardarSec(){
-  const label=document.getElementById('sec-nombre').value.trim();
-  const emoji=document.getElementById('sec-emoji').value.trim()||'🍽️';
-  const color=document.getElementById('sec-color').value||SWATCHES_PRESET[0];
+  var label=document.getElementById('sec-nombre').value.trim();
+  var emoji=document.getElementById('sec-emoji').value.trim()||'🍽️';
+  var color=document.getElementById('sec-color').value||SWATCHES_P[0];
   if(!label){toast('Ingresa un nombre para la sección','warn');return;}
   if(secEditId){
-    const sec=secDe(secEditId); if(!sec) return;
-    sec.label=label; sec.emoji=emoji; sec.color=color;
+    var sec=secDe(secEditId);if(!sec)return;
+    sec.label=label;sec.emoji=emoji;sec.color=color;
     toast('Sección actualizada','ok');
-  } else {
-    if(secciones.some(s=>s.label.toLowerCase()===label.toLowerCase())){toast('Ya existe una sección con ese nombre','warn');return;}
-    secciones.push({id:uid(),label,emoji,color,bloquesSugeridos:['Insumos','Agregados','Empaque']});
+  }else{
+    for(var i=0;i<secciones.length;i++){
+      if(secciones[i].label.toLowerCase()===label.toLowerCase()){toast('Ya existe esa sección','warn');return;}
+    }
+    secciones.push({id:uid(),label:label,emoji:emoji,color:color,bs:['Insumos','Agregados','Empaque']});
     toast('Sección creada','ok');
   }
-  save(); cerrarOv('ov-sec'); renderSB();
+  save();cerrarOv('ov-sec');renderSB();
 }
 function eliminarSec(id){
-  if(recetas.some(r=>r.secId===id)){toast('La sección tiene recetas, elimínalas primero','warn');return;}
-  confirmar(`Eliminar sección`,`Esta sección no tiene recetas y se eliminará.`,()=>{
-    secciones=secciones.filter(s=>s.id!==id); save(); renderSB(); toast('Sección eliminada','warn');
+  for(var i=0;i<recetas.length;i++){
+    if(recetas[i].secId===id){toast('La sección tiene recetas, elimínalas primero','warn');return;}
+  }
+  confirmar('Eliminar sección','Esta sección no tiene recetas y se eliminará.',function(){
+    secciones=secciones.filter(function(s){return s.id!==id;});
+    save();renderSB();toast('Sección eliminada','warn');
   });
 }
 
-// ══════════════════════════════════════════════
-//  ELIMINAR RECETA
-// ══════════════════════════════════════════════
+// ── ELIMINAR RECETA ──
 function pedirElimRec(rid){
-  const r=recDe(rid);
-  confirmar(`Eliminar "${r.nombre}"`,`Esta acción no se puede deshacer.`,()=>{
-    recetas=recetas.filter(x=>x.id!==rid); save(); activa=null;
-    document.getElementById('main').innerHTML=`<div class="empty"><div class="empty-icon">📋</div><h2>Sin recetas</h2><button class="btn primary" onclick="mostrarForm()">＋ Nueva receta</button></div>`;
-    renderSB(); toast('Receta eliminada','warn');
+  var r=recDe(rid);
+  confirmar('Eliminar "'+r.nombre+'"','Esta acción no se puede deshacer.',function(){
+    recetas=recetas.filter(function(x){return x.id!==rid;});
+    save();activa=null;mostrarVacio();renderSB();toast('Receta eliminada','warn');
   });
 }
 function confirmar(titulo,texto,cb){
   document.getElementById('conf-titulo').textContent=titulo;
   document.getElementById('conf-texto').textContent=texto;
-  document.getElementById('conf-ok').onclick=()=>{cb();cerrarOv('ov-confirm');};
+  document.getElementById('conf-ok').onclick=function(){cb();cerrarOv('ov-confirm');};
   document.getElementById('ov-confirm').classList.remove('hidden');
 }
 
-// ══════════════════════════════════════════════
-//  EXPORT / IMPORT
-// ══════════════════════════════════════════════
+// ── EXPORT / IMPORT ──
 function exportarJSON(){
-  const blob=new Blob([JSON.stringify({v:2,secciones,recetas},null,2)],{type:'application/json'});
-  const a=document.createElement('a');
+  var blob=new Blob([JSON.stringify({v:2,secciones:secciones,recetas:recetas},null,2)],{type:'application/json'});
+  var a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download=`orbita-recetas-${new Date().toISOString().slice(0,10)}.json`;
-  a.click(); toast('JSON exportado','ok');
+  a.download='orbita-recetas-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();toast('JSON exportado','ok');
 }
 function importarJSON(input){
-  const file=input.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=e=>{
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
     try{
-      const d=JSON.parse(e.target.result);
-      if(!d.recetas) throw new Error();
+      var d=JSON.parse(e.target.result);
+      if(!d.recetas)throw new Error();
       recetas=d.recetas;
-      if(d.secciones) secciones=d.secciones;
-      save(); activa=null; renderSB();
-      document.getElementById('main').innerHTML=`<div class="empty"><div class="empty-icon">📋</div><h2>${recetas.length} recetas importadas</h2><button class="btn primary" onclick="verRec(recetas[0].id)">Ver primera receta</button></div>`;
-      toast(`${recetas.length} recetas importadas`,'ok');
-    }catch{toast('Archivo inválido','err');}
+      if(d.secciones)secciones=d.secciones;
+      save();activa=null;renderSB();
+      mostrarVacio();toast(recetas.length+' recetas importadas','ok');
+    }catch(err){toast('Archivo inválido','err');}
   };
-  reader.readAsText(file); input.value='';
+  reader.readAsText(file);input.value='';
 }
 
-// ══════════════════════════════════════════════
-//  MODALES UTILS
-// ══════════════════════════════════════════════
-function cerrarOv(id){ document.getElementById(id).classList.add('hidden'); }
-document.querySelectorAll('.overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.add('hidden');}));
+// ── MODALES ──
+function cerrarOv(id){document.getElementById(id).classList.add('hidden');}
+document.querySelectorAll('.overlay').forEach(function(ov){
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.classList.add('hidden');});
+});
 
-// ══════════════════════════════════════════════
-//  TOAST
-// ══════════════════════════════════════════════
-function toast(msg,tipo='ok'){
-  const t=document.getElementById('toast');
+// ── TOAST ──
+function toast(msg,tipo){
+  tipo=tipo||'ok';
+  var t=document.getElementById('toast');
   t.textContent=(tipo==='ok'?'✓ ':tipo==='warn'?'⚠ ':'✕ ')+msg;
-  t.className=`show ${tipo}`;
-  clearTimeout(t._t); t._t=setTimeout(()=>t.className='',2400);
+  t.className='show '+tipo;
+  clearTimeout(t._t);t._t=setTimeout(function(){t.className='';},2400);
 }
 
-// ══════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════
-async function init() {
-  document.getElementById('main').innerHTML=`
-    <div class="empty">
-      <div class="empty-icon" style="animation:spin 1.2s linear infinite">⏳</div>
-      <h2>Cargando recetas…</h2>
-    </div>`;
+// ── INIT ──
+function init(){
+  document.getElementById('main').innerHTML='<div class="empty"><div class="empty-icon" style="animation:spin 1.2s linear infinite">&#9203;</div><h2>Cargando&hellip;</h2></div>';
+  function cargarLocal(){
+    try{var ls=localStorage.getItem('orb_secs');if(ls)secciones=JSON.parse(ls);}catch(e){}
+    try{var lr=localStorage.getItem('orb_recs');if(lr)recetas=JSON.parse(lr);}catch(e){}
+    if(!secciones||!secciones.length) secciones=JSON.parse(JSON.stringify(SECS_DEFAULT));
+  }
   if(online){
-    try{
-      const [secsR,recsR]=await Promise.all([sbGet('secciones'),sbGet('recetas')]);
-      if(secsR){secciones=secsR;localStorage.setItem('orb_secs',JSON.stringify(secciones));}
-      if(recsR){recetas=recsR;localStorage.setItem('orb_recs',JSON.stringify(recetas));}
-      await sincPendientes();
-    }catch(e){
-      const ls=localStorage.getItem('orb_secs'),lr=localStorage.getItem('orb_recs');
-      if(ls)secciones=JSON.parse(ls); if(lr)recetas=JSON.parse(lr);
-      toast('Error de conexión — usando datos locales','warn');
-    }
+    Promise.all([sbGet('secciones'),sbGet('recetas')])
+      .then(function(res){
+        if(res[0]){secciones=res[0];try{localStorage.setItem('orb_secs',JSON.stringify(secciones));}catch(e){}}
+        else{cargarLocal();}
+        if(res[1]){recetas=res[1];try{localStorage.setItem('orb_recs',JSON.stringify(recetas));}catch(e){}}
+        sincPendientes();
+        renderSB();
+        if(recetas.length>0)verRec(recetas[0].id);else mostrarVacio();
+      })
+      .catch(function(){
+        cargarLocal();renderSB();
+        if(recetas.length>0)verRec(recetas[0].id);else mostrarVacio();
+        toast('Error de conexión — usando datos locales','warn');
+      });
   }else{
-    const ls=localStorage.getItem('orb_secs'),lr=localStorage.getItem('orb_recs');
-    if(ls)secciones=JSON.parse(ls); if(lr)recetas=JSON.parse(lr);
+    cargarLocal();renderSB();
+    if(recetas.length>0)verRec(recetas[0].id);else mostrarVacio();
     toast('Sin conexión — datos locales','warn');
   }
-  renderSB();
-  if(recetas.length>0) verRec(recetas[0].id);
-  else document.getElementById('main').innerHTML=`
-    <div class="empty" id="empty">
-      <div class="empty-icon">📋</div>
-      <h2>Sin recetas aún</h2>
-      <p style="font-size:.79rem;max-width:260px;line-height:1.6;color:var(--muted2)">Crea tu primera receta o agrega una sección.</p>
-      <button class="btn primary" onclick="mostrarForm()">＋ Nueva receta</button>
-    </div>`;
 }
-const _s=document.createElement('style');
-_s.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
-document.head.appendChild(_s);
 init();
 </script>
 </body>
