@@ -221,6 +221,28 @@ main{padding:14px 16px 80px;max-width:1080px;margin:0 auto;}
 .sem-total-val.ok{color:var(--ok);font-size:1rem;}
 .sem-sep{width:1px;height:28px;background:var(--border);flex-shrink:0;}
 
+.btn-print{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:6px 12px;border-radius:20px;
+  border:1px solid rgba(212,169,106,.4);
+  background:rgba(212,169,106,.07);
+  color:#d4a96a;font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:500;
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.btn-print:hover{background:rgba(212,169,106,.18);border-color:#d4a96a;}
+
+/* ═══ MODAL REPORTE ═══ */
+.modal-reporte{background:var(--s1);border:1px solid var(--border2);border-radius:var(--r);padding:24px;width:100%;max-width:500px;}
+.modal-reporte h2{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.08em;margin-bottom:6px;}
+.modal-reporte p{font-size:.78rem;color:var(--muted);margin-bottom:18px;line-height:1.5;}
+.periodo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.periodo-card{padding:14px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);cursor:pointer;transition:all .15s;text-align:center;}
+.periodo-card:hover{border-color:#d4a96a;background:rgba(212,169,106,.06);}
+.periodo-card.selected{border-color:#d4a96a;background:rgba(212,169,106,.1);}
+.periodo-card-icon{font-size:1.4rem;margin-bottom:6px;}
+.periodo-card-label{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.08em;}
+.periodo-card-sub{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);margin-top:3px;}
+
 #toast{position:fixed;bottom:20px;right:16px;z-index:500;padding:9px 16px;border-radius:8px;font-weight:600;font-size:.78rem;opacity:0;transform:translateY(8px);transition:all .22s;pointer-events:none;max-width:calc(100vw - 32px);}
 #toast.show{opacity:1;transform:translateY(0);}
 #toast.ok{background:var(--ok);color:var(--bg);}
@@ -272,6 +294,8 @@ main{padding:14px 16px 80px;max-width:1080px;margin:0 auto;}
   <div class="logo">ÓRBIT<em>A</em><small>STOCK</small></div>
   <div id="online-dot" style="width:7px;height:7px;border-radius:50%;background:var(--ok);flex-shrink:0;transition:background .3s;"></div>
   <div class="header-actions">
+    <button class="btn-print" onclick="abrirModalReporte()">🖨 Reporte</button>
+    <a href="Recetas.html" class="btn" style="text-decoration:none;border-color:rgba(157,143,212,.4);color:#b08fd4">📋 Recetas</a>
     <button class="btn" onclick="abrirModal()">⬆ Export/Import</button>
   </div>
 </header>
@@ -314,6 +338,35 @@ main{padding:14px 16px 80px;max-width:1080px;margin:0 auto;}
     <div class="modal-cat-footer">
       <button class="btn" onclick="cerrarModalCat()">Cancelar</button>
       <button class="btn primary" id="mcat-ok" onclick="confirmarModalCat()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Reporte -->
+<div class="overlay hidden" id="overlay-reporte">
+  <div class="modal-reporte">
+    <h2>🖨 Reporte de Rendimiento</h2>
+    <p>Elegí el período. Se abre en una ventana nueva lista para imprimir o guardar como PDF.</p>
+    <div class="periodo-grid">
+      <div class="periodo-card selected" id="pc-dia" onclick="selPeriodo('dia')">
+        <div class="periodo-card-icon">📅</div>
+        <div class="periodo-card-label">Día</div>
+        <div class="periodo-card-sub" id="pc-dia-sub"></div>
+      </div>
+      <div class="periodo-card" id="pc-semana" onclick="selPeriodo('semana')">
+        <div class="periodo-card-icon">📆</div>
+        <div class="periodo-card-label">Semana</div>
+        <div class="periodo-card-sub" id="pc-sem-sub"></div>
+      </div>
+      <div class="periodo-card" id="pc-mes" onclick="selPeriodo('mes')">
+        <div class="periodo-card-icon">📊</div>
+        <div class="periodo-card-label">Mes</div>
+        <div class="periodo-card-sub" id="pc-mes-sub"></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;">
+      <button class="btn" onclick="cerrarModalReporte()">Cancelar</button>
+      <button class="btn primary" onclick="generarReporte()">Generar reporte</button>
     </div>
   </div>
 </div>
@@ -411,6 +464,7 @@ let editDia={},consumoDia={},busquedaDiario='';
 // ═══ UTILS ═══
 const DIAS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MESES_C=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const MESES_C=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
 function hoy(){return new Date().toISOString().slice(0,10);}
@@ -936,6 +990,235 @@ function eliminarSec(si){
   if(!confirm(`¿Eliminar la sección "${sec.nombre}" con ${sec.categorias.length} categoría(s) y ${numProds} producto(s)?`))return;
   catalogo.secciones.splice(si,1);guardarCatalogo();toast('Sección eliminada','ok');renderDiario();
 }
+
+// ═══ REPORTE DE RENDIMIENTO ═══
+let periodoReporte='dia';
+
+function abrirModalReporte(){
+  const ini=inicioSemana(semOff),fin=sumarDias(ini,6);
+  const iniMes=inicioMes(mesOff);const[y,m]=iniMes.split('-').map(Number);
+  document.getElementById('pc-dia-sub').textContent=fmtCorto(fechaActiva);
+  document.getElementById('pc-sem-sub').textContent=`${fmtCorto(ini)} – ${fmtCorto(fin)}`;
+  document.getElementById('pc-mes-sub').textContent=`${MESES[m-1]} ${y}`;
+  selPeriodo('dia');
+  document.getElementById('overlay-reporte').classList.remove('hidden');
+}
+function cerrarModalReporte(){document.getElementById('overlay-reporte').classList.add('hidden');}
+document.addEventListener('DOMContentLoaded',()=>{
+  const ov=document.getElementById('overlay-reporte');
+  if(ov)ov.addEventListener('click',function(e){if(e.target===this)cerrarModalReporte();});
+});
+function selPeriodo(p){
+  periodoReporte=p;
+  ['dia','semana','mes'].forEach(x=>document.getElementById('pc-'+x).classList.toggle('selected',x===p));
+}
+
+function cargarRecetasParaReporte(){
+  // Lee recetas del localStorage (sincronizadas por Recetas.html)
+  try{const r=localStorage.getItem('orb_recs');return r?JSON.parse(r):[];}catch(e){return[];}
+}
+function costoIngRep(ing){if(ing.costoFijo>0)return ing.costoFijo;if(ing.precioKg>0&&ing.gramos>0)return(ing.precioKg/1000)*ing.gramos;return 0;}
+function costoRecRep(r){return r.bloques.reduce((a,b)=>a+b.ings.reduce((s,i)=>s+costoIngRep(i),0),0);}
+
+function generarReporte(){
+  cerrarModalReporte();
+  let diasR=[];let periodoLabel='';
+  if(periodoReporte==='dia'){diasR=[fechaActiva];periodoLabel=fmtLargo(fechaActiva);}
+  else if(periodoReporte==='semana'){const ini=inicioSemana(semOff);diasR=diasSemana(ini);periodoLabel=`Semana ${fmtCorto(ini)} – ${fmtCorto(sumarDias(ini,6))}`;}
+  else{const ini=inicioMes(mesOff);diasR=diasMes(ini);const[y,m]=ini.split('-').map(Number);periodoLabel=`${MESES[m-1]} ${y}`;}
+
+  const recetas=cargarRecetasParaReporte();
+  const recMap={};
+  recetas.forEach(r=>{recMap[r.nombre.toLowerCase().trim()]=r;if(r.id)recMap[r.id]=r;});
+
+  const secciones=getSecciones();
+  const prodStats={};
+  secciones.forEach(sec=>{
+    sec.categorias.forEach(cat=>{
+      cat.items.forEach(p=>{
+        let uds=0,ingresos=0;
+        diasR.forEach(d=>{const q=ventas[d]?.[sec.id]?.[p.id]||0;uds+=q;ingresos+=q*p.precio;});
+        if(uds>0){
+          const rec=recMap[p.nombre.toLowerCase().trim()]||(p.recetaId?recMap[p.recetaId]:null);
+          const costo=rec?costoRecRep(rec)*uds:null;
+          const ganancia=costo!==null?ingresos-costo-ingresos*0.19:null;
+          const margen=costo!==null&&ingresos>0?((ingresos-costo-ingresos*0.19)/ingresos)*100:null;
+          prodStats[p.id]={nombre:p.nombre,seccion:sec.nombre,secColor:sec.color,secEmoji:sec.emoji,uds,ingresos,costo,ganancia,margen,precio:p.precio};
+        }
+      });
+    });
+  });
+
+  const prods=Object.values(prodStats);
+  const totalIngresos=prods.reduce((a,p)=>a+p.ingresos,0);
+  const totalUds=prods.reduce((a,p)=>a+p.uds,0);
+  const prodsConMargen=prods.filter(p=>p.margen!==null);
+  const byIngresos=[...prods].sort((a,b)=>b.ingresos-a.ingresos);
+  const byUds=[...prods].sort((a,b)=>b.uds-a.uds);
+  const byMargen=[...prodsConMargen].sort((a,b)=>b.margen-a.margen);
+  const secStats={};
+  secciones.forEach(s=>{secStats[s.id]={nombre:s.nombre,emoji:s.emoji,color:s.color,ingresos:0,uds:0};});
+  prods.forEach(p=>{const s=secciones.find(s=>s.nombre===p.seccion);if(s){secStats[s.id].ingresos+=p.ingresos;secStats[s.id].uds+=p.uds;}});
+
+  const p2=n=>n>0?'$'+Math.round(n).toLocaleString('es-CL'):'—';
+  const fPct=n=>n!==null?n.toFixed(1)+'%':'—';
+  const mCol=m=>m===null?'#888':m>=50?'#27ae60':m>=30?'#e67e22':'#c0392b';
+  const mCls=m=>m===null?'':m>=50?'ok':m>=30?'warn':'fire';
+
+  let h=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<title>Reporte · ${periodoLabel}</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f4f2ef;color:#1a1a1a;font-family:'DM Sans',sans-serif;font-size:13px;padding:24px;max-width:920px;margin:0 auto}
+.rpt-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #1a1a1a}
+.rpt-logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.1em}
+.rpt-logo em{color:#c9963c;font-style:normal}
+.rpt-logo small{font-family:'DM Mono',monospace;font-size:.55rem;color:#888;letter-spacing:.12em;margin-left:8px}
+.rpt-info{text-align:right}
+.rpt-periodo{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.06em;color:#333}
+.rpt-emision{font-family:'DM Mono',monospace;font-size:.62rem;color:#999;margin-top:3px}
+.sec-tit{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.14em;color:#999;text-transform:uppercase;margin:22px 0 8px;padding-bottom:4px;border-bottom:1px solid #ddd}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:4px}
+.kpi{background:#fff;border:1px solid #e0ddd8;border-radius:8px;padding:12px 14px}
+.kpi-lbl{font-size:.56rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#aaa;margin-bottom:4px}
+.kpi-val{font-family:'DM Mono',monospace;font-size:1.1rem;font-weight:500}
+.kpi-val.ok{color:#27ae60}
+.sec-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px}
+.sec-card{background:#fff;border-radius:8px;padding:10px 12px;border-left:3px solid #ccc}
+.sec-card-lbl{font-size:.58rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#aaa;margin-bottom:3px}
+.sec-card-val{font-family:'DM Mono',monospace;font-size:.9rem;font-weight:500}
+.sec-bar-wrap{margin-top:5px;height:3px;background:#eee;border-radius:2px;overflow:hidden}
+.sec-bar{height:100%;border-radius:2px}
+.rank-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:4px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e8e5e0;margin-bottom:14px}
+thead{background:#f0ede8}
+th{text-align:left;padding:7px 10px;font-size:.58rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#999;border-bottom:1px solid #e0ddd8}
+th.r{text-align:right}
+td{padding:7px 10px;border-bottom:1px solid #f0ede8;font-size:.79rem}
+td.r{text-align:right;font-family:'DM Mono',monospace;font-size:.74rem;color:#555}
+td.ok{color:#27ae60}td.warn{color:#e67e22}td.fire{color:#c0392b}
+tr:last-child td{border-bottom:none}tr:hover{background:#faf9f7}
+.rank-num{font-family:'DM Mono',monospace;font-weight:600;color:#ccc;margin-right:4px}
+.prod-sec{display:inline-block;padding:1px 6px;border-radius:10px;font-size:.58rem;font-weight:600;margin-top:2px}
+.total-row td{background:#f0ede8;font-weight:600;font-family:'DM Mono',monospace}
+.sin-rec{font-size:.6rem;color:#bbb;font-style:italic}
+.print-btn{position:fixed;bottom:20px;right:20px;padding:10px 20px;background:#1a1a1a;color:#fff;border:none;border-radius:20px;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.print-btn:hover{background:#333}
+@media print{.print-btn{display:none}@page{margin:14mm 12mm}body{padding:0;background:#fff}}
+</style></head><body>
+<button class="print-btn" onclick="window.print()">🖨 Imprimir / PDF</button>
+<div class="rpt-header">
+  <div><div class="rpt-logo">ÓRBIT<em>A</em><small>STOCK</small></div><div style="font-family:'DM Mono',monospace;font-size:.6rem;color:#999;margin-top:2px">Reporte de Rendimiento</div></div>
+  <div class="rpt-info">
+    <div class="rpt-periodo">${periodoLabel}</div>
+    <div class="rpt-emision">Emitido ${new Date().toLocaleDateString('es-CL',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+  </div>
+</div>`;
+
+  // KPIs
+  h+=`<div class="kpi-grid">
+    <div class="kpi"><div class="kpi-lbl">Ingresos</div><div class="kpi-val ok">${p2(totalIngresos)}</div></div>
+    <div class="kpi"><div class="kpi-lbl">Unidades vendidas</div><div class="kpi-val">${totalUds}</div></div>
+    <div class="kpi"><div class="kpi-lbl">Productos distintos</div><div class="kpi-val">${prods.length}</div></div>
+    <div class="kpi"><div class="kpi-lbl">Con margen calculado</div><div class="kpi-val">${prodsConMargen.length}${prods.length>0?` <span style="font-size:.7rem;color:#aaa">/ ${prods.length}</span>`:''}</div></div>
+  </div>`;
+
+  // Participación por sección
+  const secsConVentas=Object.values(secStats).filter(s=>s.ingresos>0).sort((a,b)=>b.ingresos-a.ingresos);
+  if(secsConVentas.length){
+    h+=`<div class="sec-tit">Participación por sección</div><div class="sec-cards">`;
+    secsConVentas.forEach(s=>{const pct=totalIngresos>0?s.ingresos/totalIngresos*100:0;
+      h+=`<div class="sec-card" style="border-left-color:${s.color}">
+        <div class="sec-card-lbl">${s.emoji} ${s.nombre}</div>
+        <div class="sec-card-val" style="color:${s.color}">${p2(s.ingresos)}</div>
+        <div style="font-size:.6rem;color:#aaa;margin-top:2px">${pct.toFixed(1)}% · ${s.uds} uds.</div>
+        <div class="sec-bar-wrap"><div class="sec-bar" style="width:${pct}%;background:${s.color}"></div></div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // Rankings por ingresos y unidades
+  h+=`<div class="sec-tit">Rankings</div><div class="rank-grid">`;
+  h+=`<table><thead><tr><th>🏆 Más ingresos</th><th class="r">Uds.</th><th class="r">Total</th><th class="r">Margen</th></tr></thead><tbody>`;
+  byIngresos.slice(0,8).forEach((p,i)=>{
+    h+=`<tr><td><span class="rank-num">${i+1}</span>${p.nombre}<br>
+      <span class="prod-sec" style="background:${p.secColor}20;color:${p.secColor}">${p.seccion}</span></td>
+      <td class="r">${p.uds}</td><td class="r">${p2(p.ingresos)}</td>
+      <td class="r ${mCls(p.margen)}">${p.margen!==null?fPct(p.margen):'<span class="sin-rec">sin receta</span>'}</td></tr>`;
+  });
+  h+=`</tbody></table>`;
+
+  h+=`<table><thead><tr><th>📦 Más vendidos</th><th class="r">Uds.</th><th class="r">Total</th><th class="r">Margen</th></tr></thead><tbody>`;
+  byUds.slice(0,8).forEach((p,i)=>{
+    h+=`<tr><td><span class="rank-num">${i+1}</span>${p.nombre}<br>
+      <span class="prod-sec" style="background:${p.secColor}20;color:${p.secColor}">${p.seccion}</span></td>
+      <td class="r">${p.uds}</td><td class="r">${p2(p.ingresos)}</td>
+      <td class="r ${mCls(p.margen)}">${p.margen!==null?fPct(p.margen):'<span class="sin-rec">sin receta</span>'}</td></tr>`;
+  });
+  h+=`</tbody></table></div>`;
+
+  // Por margen (si hay recetas)
+  if(byMargen.length>=2){
+    h+=`<div class="rank-grid">`;
+    h+=`<table><thead><tr><th>💚 Mejor margen</th><th class="r">Uds.</th><th class="r">Ganancia</th><th class="r">Margen %</th></tr></thead><tbody>`;
+    byMargen.slice(0,8).forEach((p,i)=>{
+      h+=`<tr><td><span class="rank-num">${i+1}</span>${p.nombre}</td>
+        <td class="r">${p.uds}</td><td class="r ok">${p2(p.ganancia)}</td>
+        <td class="r ${mCls(p.margen)}">${fPct(p.margen)}</td></tr>`;
+    });
+    h+=`</tbody></table>`;
+    h+=`<table><thead><tr><th>🔴 Menor margen</th><th class="r">Uds.</th><th class="r">Ganancia</th><th class="r">Margen %</th></tr></thead><tbody>`;
+    [...byMargen].reverse().slice(0,8).forEach((p,i)=>{
+      h+=`<tr><td><span class="rank-num">${i+1}</span>${p.nombre}</td>
+        <td class="r">${p.uds}</td><td class="r">${p2(p.ganancia)}</td>
+        <td class="r ${mCls(p.margen)}">${fPct(p.margen)}</td></tr>`;
+    });
+    h+=`</tbody></table></div>`;
+  }
+
+  // Menos vendidos
+  if(prods.length>5){
+    const menosVend=[...prods].sort((a,b)=>a.uds-b.uds).slice(0,5);
+    h+=`<div class="sec-tit">Menos vendidos</div>
+    <table><thead><tr><th>Producto</th><th>Sección</th><th class="r">Uds.</th><th class="r">Ingresos</th><th class="r">Margen</th></tr></thead><tbody>`;
+    menosVend.forEach(p=>{
+      h+=`<tr><td>${p.nombre}</td><td><span class="prod-sec" style="background:${p.secColor}20;color:${p.secColor}">${p.seccion}</span></td>
+        <td class="r">${p.uds}</td><td class="r">${p2(p.ingresos)}</td>
+        <td class="r ${mCls(p.margen)}">${p.margen!==null?fPct(p.margen):'<span class="sin-rec">sin receta</span>'}</td></tr>`;
+    });
+    h+=`</tbody></table>`;
+  }
+
+  // Flujo temporal
+  if(periodoReporte!=='dia'){
+    h+=`<div class="sec-tit">Flujo de ingresos</div>
+    <table><thead><tr><th>Fecha</th>`;
+    const secsActivas=secciones.filter(s=>diasR.some(d=>totalSeccion(s.id,d)>0));
+    secsActivas.forEach(s=>{h+=`<th class="r">${s.emoji} ${s.nombre}</th>`;});
+    h+=`<th class="r">Total día</th><th>Notas</th></tr></thead><tbody>`;
+    diasR.forEach(d=>{
+      const t=totalDia(d);if(!t&&!ventas[d]?.notas)return;
+      const f=parseFecha(d);
+      h+=`<tr><td><strong>${DIAS[f.getDay()]}</strong> ${f.getDate()} ${MESES_C[f.getMonth()]}</td>`;
+      secsActivas.forEach(s=>{const ts=totalSeccion(s.id,d);h+=`<td class="r" style="color:${ts?s.color:'#ddd'}">${ts?p2(ts):'—'}</td>`;});
+      h+=`<td class="r"><strong>${p2(t)}</strong></td><td style="color:#aaa;font-size:.65rem;font-style:italic">${ventas[d]?.notas||''}</td></tr>`;
+    });
+    const gt=diasR.reduce((a,d)=>a+totalDia(d),0);
+    h+=`<tr class="total-row"><td>TOTAL</td>`;
+    secsActivas.forEach(s=>{const ts=diasR.reduce((a,d)=>a+totalSeccion(s.id,d),0);h+=`<td class="r">${p2(ts)}</td>`;});
+    h+=`<td class="r" style="color:#27ae60">${p2(gt)}</td><td></td></tr></tbody></table>`;
+  }
+
+  h+=`</body></html>`;
+  const w=window.open('','_blank');
+  if(w){w.document.write(h);w.document.close();}
+  else{toast('Habilitá popups para ver el reporte','warn');}
+}
+
+// Listener para cerrar modal reporte
+document.getElementById('overlay-reporte').addEventListener('click',function(e){if(e.target===this)cerrarModalReporte();});
 
 // ═══ INIT ═══
 async function init(){
