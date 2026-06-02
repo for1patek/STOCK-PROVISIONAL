@@ -465,7 +465,6 @@ let editDia={},consumoDia={},busquedaDiario='';
 const DIAS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const MESES_C=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-const MESES_C=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
 function hoy(){return new Date().toISOString().slice(0,10);}
 function parseFecha(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
@@ -1004,10 +1003,6 @@ function abrirModalReporte(){
   document.getElementById('overlay-reporte').classList.remove('hidden');
 }
 function cerrarModalReporte(){document.getElementById('overlay-reporte').classList.add('hidden');}
-document.addEventListener('DOMContentLoaded',()=>{
-  const ov=document.getElementById('overlay-reporte');
-  if(ov)ov.addEventListener('click',function(e){if(e.target===this)cerrarModalReporte();});
-});
 function selPeriodo(p){
   periodoReporte=p;
   ['dia','semana','mes'].forEach(x=>document.getElementById('pc-'+x).classList.toggle('selected',x===p));
