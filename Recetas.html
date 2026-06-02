@@ -135,7 +135,9 @@ header{position:sticky;top:0;z-index:100;background:rgba(12,12,12,.95);backdrop-
 <body>
 <header>
   <div class="logo">ÓRBIT<em>A</em><small>RECETAS</small></div>
+  <div id="online-dot" style="width:7px;height:7px;border-radius:50%;background:#6fcf97;flex-shrink:0;transition:background .3s;" title="Conectado"></div>
   <div class="hright">
+    <a href="index.html" class="btn" style="text-decoration:none">📦 Ir a Stock</a>
     <button class="btn" onclick="exportarJSON()">⬇ Exportar</button>
     <label class="btn" style="cursor:pointer">⬆ Importar<input type="file" accept=".json" onchange="importarJSON(this)" style="display:none"></label>
     <button class="btn sm" onclick="abrirModalSec()">⚙ Secciones</button>
@@ -212,8 +214,64 @@ var online    = navigator.onLine;
 var pending   = {};
 try { pending = JSON.parse(localStorage.getItem('orb_pending')||'{}'); } catch(e){}
 
-window.addEventListener('online',  function(){ online=true;  sincPendientes(); toast('Conexión restaurada','ok'); });
-window.addEventListener('offline', function(){ online=false; toast('Sin conexión — guardando local','warn'); });
+window.addEventListener('online',  function(){ online=true; updateDot(); sincPendientes(); toast('Conexión restaurada','ok'); });
+window.addEventListener('offline', function(){ online=false; updateDot(); toast('Sin conexión — guardando local','warn'); });
+function updateDot(){ var d=document.getElementById('online-dot'); if(d){d.style.background=online?'#6fcf97':'#e8a84a';d.title=online?'Conectado':'Sin conexión';} }
+
+// ── SINCRONIZAR CON CATÁLOGO DE STOCK ──
+function secNombreDe(secId){ var s=secDe(secId); return s?s.label:secId; }
+
+function sincronizarConStock() {
+  var catRaw=null;
+  try{catRaw=localStorage.getItem('orbita_cat');}catch(e){}
+  var cat=catRaw?JSON.parse(catRaw):null;
+  if(!cat||!cat.secciones)return;
+  var modificado=false;
+
+  recetas.forEach(function(r){
+    var secStock=null;
+    for(var i=0;i<cat.secciones.length;i++){
+      if(cat.secciones[i].id===r.secId||
+         cat.secciones[i].nombre&&cat.secciones[i].nombre.toLowerCase()===secNombreDe(r.secId).toLowerCase()){
+        secStock=cat.secciones[i];break;
+      }
+    }
+    if(!secStock)return;
+
+    var encontrado=false;
+    for(var ci=0;ci<secStock.categorias.length;ci++){
+      for(var pi=0;pi<secStock.categorias[ci].items.length;pi++){
+        var p=secStock.categorias[ci].items[pi];
+        if(p.recetaId===r.id||p.nombre.toLowerCase()===r.nombre.toLowerCase()){
+          var cambio=false;
+          if(p.nombre!==r.nombre){p.nombre=r.nombre;cambio=true;}
+          if(p.precio!==r.precio){p.precio=r.precio;cambio=true;}
+          if(!p.recetaId){p.recetaId=r.id;cambio=true;}
+          if(cambio)modificado=true;
+          encontrado=true;
+        }
+      }
+    }
+
+    if(!encontrado){
+      var cat_dest=r.cat||(secStock.categorias.length?secStock.categorias[0].cat:'General');
+      var catObj=null;
+      for(var k=0;k<secStock.categorias.length;k++){if(secStock.categorias[k].cat===cat_dest){catObj=secStock.categorias[k];break;}}
+      if(!catObj){catObj={cat:cat_dest,items:[]};secStock.categorias.push(catObj);}
+      var newId=r.secId.slice(0,1)+'_'+r.nombre.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'')+'_'+Date.now();
+      catObj.items.push({id:newId,nombre:r.nombre,precio:r.precio,activo:true,recetaId:r.id});
+      modificado=true;
+    }
+  });
+
+  if(!modificado)return;
+  try{localStorage.setItem('orbita_cat',JSON.stringify(cat));}catch(e){}
+  if(online){
+    fetch(SB_URL+'/rest/v1/catalogo',{method:'POST',headers:SB_HDR,
+      body:JSON.stringify({id:'main',data:cat,updated_at:new Date().toISOString()})
+    }).catch(function(){});
+  }
+}
 
 // ── UTILS ──
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
@@ -247,6 +305,8 @@ function save() {
   } else {
     setPending('secs'); setPending('recs');
   }
+  // Sincronizar productos con catálogo de Stock
+  setTimeout(sincronizarConStock, 200);
 }
 
 function sincPendientes(){
@@ -440,7 +500,7 @@ function guardarCabecera(rid){
   r.nombre=nombre; r.secId=document.getElementById('ec-sec').value;
   r.cat=document.getElementById('ec-cat').value.trim();
   r.precio=precio; r.notas=document.getElementById('ec-notas').value.trim();
-  save(); verRec(rid); toast('Receta actualizada','ok');
+  save(); verRec(rid); toast('Receta actualizada y sincronizada con Stock','ok');
 }
 
 // ── NUEVA RECETA ──
@@ -557,7 +617,7 @@ function crearReceta(){
   var sec=secDe(secId);
   var r={id:uid(),secId:secId,cat:cat||(sec?sec.bs[0]:'General'),nombre:nombre,precio:precio,notas:notas,porcion:porcion,
     bloques:fBloques.map(function(b){return {titulo:b.titulo,ings:b.ings.map(function(i){return {nombre:i.nombre,precioKg:i.precioKg,gramos:i.gramos,costoFijo:i.costoFijo};})};})};
-  recetas.push(r); save(); activa=r.id; verRec(r.id); toast('Receta creada','ok');
+  recetas.push(r); save(); activa=r.id; verRec(r.id); toast('Receta creada y sincronizada con Stock','ok');
 }
 
 function cancelarForm(){
